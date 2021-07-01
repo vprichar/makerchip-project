@@ -164,11 +164,35 @@ const savePingWebHookEvent = async (req, res) => {
     }
 }
 
+const getContentRepo = async (req, res) => {
+    try {
+        const owner = req.query.owner;
+        const repoName = req.query.repo;
+        console.log(req.query);
+        const access_token = req.headers.authorization.split(' ')[1];
+        const infoRepo = await serviceGithub.getContentRepo(owner, repoName, access_token);
+
+        res.status(200).send({
+            error: false,
+            message: 'Saved!',
+            data: infoRepo
+        })
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: 'Not saved!',
+            data: {}
+        })
+        throw new Error(error);
+    }
+}
+
 module.exports = {
     makeLoginWithGithub,
     searchAccessTokenGithubWithCode,
     searchRepositoryOrgByUser,
     makeLogOutEraseToken,
     createRepositoryGithubAndUploadFiles,
-    savePingWebHookEvent
+    savePingWebHookEvent,
+    getContentRepo
 }

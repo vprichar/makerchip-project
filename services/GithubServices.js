@@ -1,4 +1,6 @@
 const fetch = require('node-fetch');
+const _ = require('lodash');
+
 
 const getAccessToken = async (
     code,
@@ -56,7 +58,53 @@ const getOrganizationsByUser = async (token) => {
 const getReposByOrganization = async (token) => {
     try {
         console.log(token)
-        const request = await fetch(`${process.env.API_URL_GITHUB}/orgs/${process.env.API_ORG_EXAMPLE}/repos`, {
+        const request = await fetch(`${process.env.API_URL_GITHUB}/user/repos`, {
+            headers: {
+                'Authorization': `token ${token}`
+            }
+        });
+
+        const allRepo = await request.json();
+        console.log(allRepo.length);
+
+        return await getContentRepoMC(allRepo, token);
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+const getContentRepoMC = async (repos, token) => {
+    try {
+        onlyMC = [];
+
+        for (const repo of repos) {
+            const owner = repo.owner.login;
+            const repoName = repo.name;
+            const request = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/`, {
+                headers: {
+                    'Authorization': `token ${token}`
+                }
+            });
+            let resp = await request.json();
+            let exists = _.find(resp, data => {
+                console.log(data.name);
+                return data.name == '.makerchip.json';
+            });
+            if (exists) { // es un proyecto MC
+                console.log(exists);
+                onlyMC.push(repo);
+            }
+        }
+        return onlyMC;
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+const getContentRepo = async (owner, repoName, token) => {
+    try {
+        console.log(token);
+        const request = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/`, {
             headers: {
                 'Authorization': `token ${token}`
             }
@@ -66,6 +114,7 @@ const getReposByOrganization = async (token) => {
         throw new Error(error);
     }
 }
+
 
 const createRepoAndUploadFilesByUserWithTokenAuth = async (token) => {
     try {
@@ -91,5 +140,8 @@ module.exports = {
     getDataUserGithub,
     getOrganizationsByUser,
     getReposByOrganization,
-    createRepoAndUploadFilesByUserWithTokenAuth
+    createRepoAndUploadFilesByUserWithTokenAuth,
+    getContentRepo,
+    getContentRepoMC
+
 }
