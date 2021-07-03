@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const _ = require('lodash');
+const RepositoryMC = require("../models/RepositoryMC")
 
 
 const getAccessToken = async (
@@ -87,12 +88,33 @@ const getContentRepoMC = async (repos, token) => {
             });
             let resp = await request.json();
             let exists = _.find(resp, data => {
-                console.log(data.name);
-                return data.name == '.makerchip.json';
+                return data.name == 'makerchip.json';
             });
-            if (exists) { // es un proyecto MC
-                console.log(exists);
-                onlyMC.push(repo);
+            if (exists) {
+                const requestContent = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/makerchip`, {
+                    headers: {
+                        'Authorization': `token ${token}`
+                    }
+                });
+                let respContent = await requestContent.json();
+                let thumbExists = _.find(respContent, data => {
+                    return data.name == 'thumb.png';
+                });
+                repo.thumbUrl = (thumbExists) ? thumbExists.download_url : '';
+
+                let response = {};
+                response['thumbnail_url'] = repo.thumbUrl;
+                response['title'] = repo.name;
+                response['creator'] = repo.owner.login;
+                response['type'] = 'project';
+                response['id'] = repo.id;
+                response['love_count'] = 0;
+                response['stars'] = repo.stargazers_count;
+                //response['clone_url'] = repo.clone_url;
+
+                const reposRegister = new RepositoryMC(response);
+                reposRegister.save();
+                onlyMC.push(response);
             }
         }
         return onlyMC;

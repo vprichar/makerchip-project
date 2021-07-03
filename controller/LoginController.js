@@ -75,26 +75,9 @@ const searchRepositoryOrgByUser = async (req, res) => {
                 following: user.following,
                 public_repos: user.public_repos
             }
-            const repos = await serviceGithub.getReposByOrganization(access_token);
-            if (repos) {
-                const repoReduce = repos.map(repo => {
-                    let response = {};
-                    response['name'] = repo.name;
-                    response['full_name'] = repo.full_name;
-                    response['stars'] = repo.stargazers_count;
-                    response['watchers'] = repo.watchers_count;
-                    response['clone_url'] = repo.clone_url;
-                    return response;
-
-                }, {});
-                const response = {};
-                response['user'] = data;
-                response['repositorys'] = repoReduce;
-                res.status(200).send({
-                    error: false,
-                    message: 'Repository',
-                    data: response
-                })
+            const community_newest_projects = await serviceGithub.getReposByOrganization(access_token);
+            if (community_newest_projects) {
+                res.status(200).send({community_newest_projects});
             } else {
                 res.status(200).send({
                     error: false,
