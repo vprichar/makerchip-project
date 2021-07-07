@@ -50,7 +50,7 @@ const searchAccessTokenGithubWithCode = async (req, res) => {
         console.log(access_token)
         const user = await serviceGithub.getDataUserGithub(access_token);
         if (user) {
-            res.redirect(`${process.env.FRONT_URL_DNS}dashboard.html?token=${access_token}`)
+            res.redirect(`${process.env.FRONT_URL_DNS}?token=${access_token}`)
         } else {
             res.status(403).send({
                 error: true,
