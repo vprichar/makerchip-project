@@ -62,6 +62,10 @@ const searchAccessTokenGithubWithCode = async (req, res) => {
     }
 }
 
+const findAllRepo = async (req, res) => {
+
+}
+
 const searchRepositoryOrgByUser = async (req, res) => {
     try {
         const access_token = req.headers.authorization.split(' ')[1];
@@ -75,9 +79,10 @@ const searchRepositoryOrgByUser = async (req, res) => {
                 following: user.following,
                 public_repos: user.public_repos
             }
+
             const community_newest_projects = await serviceGithub.getReposByOrganization(access_token);
             if (community_newest_projects) {
-                res.status(200).send({community_newest_projects});
+                res.status(200).send({ community_newest_projects });
             } else {
                 res.status(200).send({
                     error: false,
@@ -177,5 +182,6 @@ module.exports = {
     makeLogOutEraseToken,
     createRepositoryGithubAndUploadFiles,
     savePingWebHookEvent,
-    getContentRepo
+    getContentRepo,
+    findAllRepo
 }

@@ -6,7 +6,8 @@ const {
     searchRepositoryOrgByUser,
     makeLogOutEraseToken,
     savePingWebHookEvent,
-    getContentRepo
+    getContentRepo,
+    findAllRepo
 } = require('../controller/LoginController')
 
 router.get('/login/github', makeLoginWithGithub);
@@ -15,6 +16,5 @@ router.get('/callback', searchAccessTokenGithubWithCode);
 router.get('/repository', searchRepositoryOrgByUser);
 router.post('/hooks', savePingWebHookEvent);
 router.get('/getContentRepo', getContentRepo);
-
-
+router.get('/getAllRepo', findAllRepo);
 module.exports = router;

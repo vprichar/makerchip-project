@@ -21,6 +21,8 @@ const getAccessToken = async (
         });
         const text = await request.text();
         const params = new URLSearchParams(text);
+        console.log(params);
+
         return params.get('access_token');
     } catch (error) {
         throw new Error(error);
@@ -72,6 +74,10 @@ const getReposByOrganization = async (token) => {
     } catch (error) {
         throw new Error(error);
     }
+}
+
+const findAllRepoMC = async () => {
+
 }
 
 const getContentRepoMC = async (repos, token) => {
@@ -164,6 +170,6 @@ module.exports = {
     getReposByOrganization,
     createRepoAndUploadFilesByUserWithTokenAuth,
     getContentRepo,
-    getContentRepoMC
-
+    getContentRepoMC,
+    findAllRepoMC
 }
