@@ -134,7 +134,7 @@ const getContentRepoMC = async (repos, token) => {
         if (todoRepo) {
             output = todoRepo.map((repo) => {
                 return {
-                    thumbnail_url : repo.thumbUrl,
+                    thumbnail_url : repo.thumbnail_url,
                     title : repo.title,
                     creator : repo.creator,
                     type : repo.type,
