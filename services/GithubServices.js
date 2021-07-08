@@ -1,6 +1,7 @@
 const fetch = require('node-fetch');
 const _ = require('lodash');
 const RepositoryMC = require("../models/RepositoryMC")
+const mongoose = require('mongoose');
 
 
 const getAccessToken = async (
@@ -76,14 +77,19 @@ const getReposByOrganization = async (token) => {
     }
 }
 
-const findAllRepoMC = async () => {
+const findAllRepoMC = async (token) => {
+    try {
+        let resp = await RepositoryMC.find({});
 
+        return resp;
+    } catch (error) {
+        throw new Error(error);
+    }
 }
 
 const getContentRepoMC = async (repos, token) => {
     try {
         onlyMC = [];
-
         for (const repo of repos) {
             const owner = repo.owner.login;
             const repoName = repo.name;
@@ -123,7 +129,23 @@ const getContentRepoMC = async (repos, token) => {
                 onlyMC.push(response);
             }
         }
-        return onlyMC;
+        let todoRepo = await findAllRepoMC(token);
+        let output = [];
+        if (todoRepo) {
+            output = todoRepo.map((repo) => {
+                return {
+                    thumbnail_url : repo.thumbUrl,
+                    title : repo.title,
+                    creator : repo.creator,
+                    type : repo.type,
+                    id : repo.id,
+                    love_count : repo.love_count,
+                    stars : repo.stargazers_count,
+                };
+            });
+        }
+        let salida = _.uniqWith(output, _.isEqual);
+        return salida;
     } catch (error) {
         throw new Error(error);
     }

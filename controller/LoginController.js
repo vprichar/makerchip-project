@@ -63,7 +63,15 @@ const searchAccessTokenGithubWithCode = async (req, res) => {
 }
 
 const findAllRepo = async (req, res) => {
+    try {
+        const access_token = req.headers.authorization.split(' ')[1];
+        const resp = await serviceGithub.findAllRepoMC(access_token);
+        res.status(200).send(resp);
 
+    } catch (error) {
+        throw new Error(error);
+
+    }
 }
 
 const searchRepositoryOrgByUser = async (req, res) => {
