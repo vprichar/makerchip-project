@@ -123,9 +123,8 @@ const getContentRepoMC = async (repos, token) => {
                 response['love_count'] = 0;
                 response['stars'] = repo.stargazers_count;
                 //response['clone_url'] = repo.clone_url;
-
-                const reposRegister = new RepositoryMC(response);
-                reposRegister.save();
+                const query = { id: repo.id };
+                await RepositoryMC.findOneAndUpdate(query, response, { upsert: true });
                 onlyMC.push(response);
             }
         }
@@ -134,13 +133,13 @@ const getContentRepoMC = async (repos, token) => {
         if (todoRepo) {
             output = todoRepo.map((repo) => {
                 return {
-                    thumbnail_url : repo.thumbnail_url,
-                    title : repo.title,
-                    creator : repo.creator,
-                    type : repo.type,
-                    id : repo.id,
-                    love_count : repo.love_count,
-                    stars : repo.stargazers_count,
+                    thumbnail_url: repo.thumbnail_url,
+                    title: repo.title,
+                    creator: repo.creator,
+                    type: repo.type,
+                    id: repo.id,
+                    love_count: repo.love_count,
+                    stars: repo.stargazers_count,
                 };
             });
         }
