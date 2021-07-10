@@ -247,6 +247,9 @@ const detailRepo = async (id, token) => {
         let resp = await request.json();
         const owner = resp.owner.login;
         const repoName = resp.name;
+        console.log(id);
+        console.log(owner);
+        console.log(repoName);
 
         const requestContent = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/makerchip`, {
             headers: {
@@ -254,7 +257,9 @@ const detailRepo = async (id, token) => {
             }
         });
         let respContent = await requestContent.json();
+        console.log(respContent);
         let thumbExists = _.find(respContent, data => {
+            console.log(data);
             return data.name.indexOf(".png") >= 0;
         });
         const thumbUrl = (thumbExists) ? thumbExists.download_url : 'Imagen no disponible';
