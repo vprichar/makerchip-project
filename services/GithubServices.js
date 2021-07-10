@@ -240,16 +240,18 @@ const detailRepo = async (id, token) => {
     try {
         const request = await fetch(`${process.env.API_URL_GITHUB}/repositories/${id}`, {
             headers: {
-                'Authorization': `token ${process.env.TOKEN_API_GIT}`
+                'Authorization': `token ${token}`
             }
 
         });
+   
         let resp = await request.json();
         const owner = resp.owner.login;
         const repoName = resp.name;
         console.log(id);
         console.log(owner);
         console.log(repoName);
+        console.log(token);
 
         const requestContent = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/makerchip`, {
             headers: {
