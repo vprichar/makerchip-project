@@ -237,94 +237,92 @@ const createRepoAndUploadFilesByUserWithTokenAuth = async (token) => {
 }
 
 const detailRepo = async (id, token) => {
-    try {
-        const request = await fetch(`${process.env.API_URL_GITHUB}/repositories/${id}`, {
-            headers: {
-                'Authorization': `token ${token}`
-            }
 
-        });
-   
-        let resp = await request.json();
-        console.log(resp);
-        const owner = resp.owner.login;
-        const repoName = resp.name;
-        console.log(id);
-        console.log(owner);
-        console.log(repoName);
-        console.log(token);
-        console.log('////////////////////////////////');
+    const request = await fetch(`${process.env.API_URL_GITHUB}/repositories/${id}`, {
+        headers: {
+            'Authorization': `token ${token}`
+        }
 
-        const requestContent = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/makerchip`, {
-            headers: {
-                'Authorization': `token ${token}`
-            }
-        });
-        let respContent = await requestContent.json();
-        console.log(respContent);
-        let thumbExists = _.find(respContent, data => {
-            return data.name.indexOf(".png") >= 0;
-        });
-        const thumbUrl = (thumbExists) ? thumbExists.download_url : 'Imagen no disponible';
-        const parent = (resp.parent) ? resp.parent.node_id : 'Parent no disponible'
-        let respMap = {
-            "id": id,
-            "title": repoName,
-            "description": resp.description,
-            "instructions": "",
-            "visibility": "visible",
-            "public": true,
-            "comments_allowed": true,
-            "is_published": true,
-            "author": {
-                "id": 61943259,
-                "username": owner,
-                "scratchteam": false,
-                "history": {
-                    "joined": resp.updated_at
-                },
-                "profile": {
-                    "id": resp.owner.id,
-                    "images": {
-                        "90x90": resp.owner.avatar_url,
-                        "60x60": resp.owner.avatar_url,
-                        "55x55": resp.owner.avatar_url,
-                        "50x50": resp.owner.avatar_url,
-                        "32x32": resp.owner.avatar_url
-                    }
-                }
-            },
-            "image": thumbUrl,
-            "images": {
-                "282x218": thumbUrl,
-                "216x163": thumbUrl,
-                "200x200": thumbUrl,
-                "144x108": thumbUrl,
-                "135x102": thumbUrl,
-                "100x80": thumbUrl
-            },
+    });
+
+    let resp = await request.json();
+    console.log(resp);
+    const owner = resp.owner.login;
+    const repoName = resp.name;
+    console.log(id);
+    console.log(owner);
+    console.log(repoName);
+    console.log(token);
+    console.log('////////////////////////////////');
+
+    const requestContent = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/makerchip`, {
+        headers: {
+            'Authorization': `token ${token}`
+        }
+    });
+    let respContent = await requestContent.json();
+    console.log(respContent);
+    let thumbExists = _.find(respContent, data => {
+        return data.name.indexOf(".png") >= 0;
+    });
+    const thumbUrl = (thumbExists) ? thumbExists.download_url : 'Imagen no disponible';
+    const parent = (resp.parent) ? resp.parent.node_id : 'Parent no disponible'
+    let respMap = {
+        "id": id,
+        "title": repoName,
+        "description": resp.description,
+        "instructions": "",
+        "visibility": "visible",
+        "public": true,
+        "comments_allowed": true,
+        "is_published": true,
+        "author": {
+            "id": 61943259,
+            "username": owner,
+            "scratchteam": false,
             "history": {
-                "created": resp.created_at,
-                "modified": resp.updated_at,
-                "shared": resp.pushed_at
+                "joined": resp.updated_at
             },
-            "stats": {
-                "views": resp.watchers,
-                "loves": 200,
-                "favorites": 300,
-                "remixes": 90
-            },
-            "remix": {
-                "parent": parent,
-                "root": null
+            "profile": {
+                "id": resp.owner.id,
+                "images": {
+                    "90x90": resp.owner.avatar_url,
+                    "60x60": resp.owner.avatar_url,
+                    "55x55": resp.owner.avatar_url,
+                    "50x50": resp.owner.avatar_url,
+                    "32x32": resp.owner.avatar_url
+                }
             }
+        },
+        "image": thumbUrl,
+        "images": {
+            "282x218": thumbUrl,
+            "216x163": thumbUrl,
+            "200x200": thumbUrl,
+            "144x108": thumbUrl,
+            "135x102": thumbUrl,
+            "100x80": thumbUrl
+        },
+        "history": {
+            "created": resp.created_at,
+            "modified": resp.updated_at,
+            "shared": resp.pushed_at
+        },
+        "stats": {
+            "views": resp.watchers,
+            "loves": 200,
+            "favorites": 300,
+            "remixes": 90
+        },
+        "remix": {
+            "parent": parent,
+            "root": null
+        }
 
-        };
-        console.log('FIN service');
-        return respMap;
-    } catch (error) {
-        throw new Error(error);
-    }
+    };
+    console.log('FIN service');
+    return respMap;
+
 }
 
 

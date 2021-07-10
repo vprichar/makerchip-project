@@ -208,6 +208,11 @@ const detailRepo = async (req, res) => {
         const infoRepo = await serviceGithub.detailRepo(id, access_token);
         res.status(200).send(infoRepo)
     } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: 'Not saved!',
+            data: {error}
+        })
         throw new Error(error);
     }
 }
