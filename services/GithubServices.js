@@ -253,6 +253,7 @@ const detailRepo = async (id, token) => {
         console.log(owner);
         console.log(repoName);
         console.log(token);
+        console.log('////////////////////////////////');
 
         const requestContent = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/makerchip`, {
             headers: {

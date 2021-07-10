@@ -211,7 +211,7 @@ const detailRepo = async (req, res) => {
         res.status(500).send({
             error: true,
             message: 'Not saved!',
-            data: {}
+            data: {error}
         })
         throw new Error(error);
     }
