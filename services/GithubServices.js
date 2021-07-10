@@ -246,6 +246,7 @@ const detailRepo = async (id, token) => {
         });
    
         let resp = await request.json();
+        console.log(resp);
         const owner = resp.owner.login;
         const repoName = resp.name;
         console.log(id);
