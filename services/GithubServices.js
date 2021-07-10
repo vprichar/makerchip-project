@@ -263,7 +263,6 @@ const detailRepo = async (id, token) => {
         let respContent = await requestContent.json();
         console.log(respContent);
         let thumbExists = _.find(respContent, data => {
-            console.log(data);
             return data.name.indexOf(".png") >= 0;
         });
         const thumbUrl = (thumbExists) ? thumbExists.download_url : 'Imagen no disponible';
@@ -321,6 +320,7 @@ const detailRepo = async (id, token) => {
             }
 
         };
+        console.log('FIN service');
         return respMap;
     } catch (error) {
         throw new Error(error);
