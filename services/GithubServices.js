@@ -46,7 +46,6 @@ const getDataUserGithub = async (token) => {
 
 const getOrganizationsByUser = async (token) => {
     try {
-        console.log(token)
         const request = await fetch(`${process.env.API_URL_GITHUB}/orgs/${process.env.API_ORG_EXAMPLE}/members/ichavezf`, {
             headers: {
                 'Authorization': `token ${token}`

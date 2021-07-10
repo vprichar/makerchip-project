@@ -77,7 +77,7 @@ const findAllRepo = async (req, res) => {
 const searchRepositoryOrgByUser = async (req, res) => {
     try {
         let community_newest_projects = {};
-        if (req.headers.authorization) {
+        if (req.headers.authorization && req.headers.authorization.length > 10 ) {
             const access_token = req.headers.authorization.split(' ')[1];
             const user = await serviceGithub.getDataUserGithub(access_token);
             if (user) {
