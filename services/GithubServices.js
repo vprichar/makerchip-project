@@ -258,6 +258,7 @@ const detailRepo = async (id, token) => {
             return data.name.indexOf(".png") >= 0;
         });
         const thumbUrl = (thumbExists) ? thumbExists.download_url : 'Imagen no disponible';
+        const parent = (resp.parent) ? resp.parent.node_id : 'Parent no disponible'
         let respMap = {
             "id": id,
             "title": repoName,
@@ -306,7 +307,7 @@ const detailRepo = async (id, token) => {
                 "remixes": 90
             },
             "remix": {
-                "parent": resp.parent.node_id,
+                "parent": parent,
                 "root": null
             }
 
