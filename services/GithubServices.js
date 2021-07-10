@@ -80,11 +80,64 @@ const getReposByOrganization = async (token) => {
 const findAllRepoMC = async (token) => {
     try {
         let resp = await RepositoryMC.find({});
-
         return resp;
     } catch (error) {
         throw new Error(error);
     }
+}
+
+
+const getRepoMongo = async () => {
+    try {
+        const resp = await RepositoryMC.find({}, { _id: 0, __v: 0 });
+        let salida = _.uniqWith(resp, _.isEqual);
+        return await updateRepos(salida);
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+const updateRepos = async (repos) => {
+    try {
+        onlyMC = [];
+        for (const repo of repos) {
+            const request = await fetch(`${process.env.API_URL_GITHUB}/repositories/${repo.id}`, {
+                headers: {
+                    'Authorization': `token ${process.env.TOKEN_API_GIT}`
+                }
+
+            });
+            let resp = await request.json();
+            const owner = resp.owner.login;
+            const repoName = resp.name;
+
+            const requestContent = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/makerchip`, {
+                headers: {
+                    'Authorization': `token ${process.env.TOKEN_API_GIT}`
+                }
+            });
+            let respContent = await requestContent.json();
+            let thumbExists = _.find(respContent, data => {
+                return data.name.indexOf(".png") >= 0;
+            });
+            repo.thumbUrl = (thumbExists) ? thumbExists.download_url : '';
+            let response = {};
+            response['thumbnail_url'] = repo.thumbUrl;
+            response['title'] = repoName;
+            response['creator'] = owner;
+            response['type'] = 'project';
+            response['id'] = repo.id;
+            response['love_count'] = repo.love_count;
+            response['stars'] = resp.stargazers_count;
+            const query = { id: resp.id };
+            await RepositoryMC.findOneAndUpdate(query, response, { upsert: true });
+            onlyMC.push(response);
+        }
+        return onlyMC;
+    } catch (error) {
+        throw new Error(error);
+    }
+
 }
 
 const getContentRepoMC = async (repos, token) => {
@@ -110,9 +163,9 @@ const getContentRepoMC = async (repos, token) => {
                 });
                 let respContent = await requestContent.json();
                 let thumbExists = _.find(respContent, data => {
-                    return data.name == 'thumb.png';
+                    return data.name.indexOf(".png") >= 0;
                 });
-                repo.thumbUrl = (thumbExists) ? thumbExists.download_url : '';
+                repo.thumbUrl = (thumbExists) ? thumbExists.download_url : 'Imagen no disponible';
 
                 let response = {};
                 response['thumbnail_url'] = repo.thumbUrl;
@@ -139,7 +192,7 @@ const getContentRepoMC = async (repos, token) => {
                     type: repo.type,
                     id: repo.id,
                     love_count: repo.love_count,
-                    stars: repo.stargazers_count,
+                    stars: repo.stars,
                 };
             });
         }
@@ -184,6 +237,89 @@ const createRepoAndUploadFilesByUserWithTokenAuth = async (token) => {
     }
 }
 
+const detailRepo = async (id, token) => {
+    try {
+        const request = await fetch(`${process.env.API_URL_GITHUB}/repositories/${id}`, {
+            headers: {
+                'Authorization': `token ${process.env.TOKEN_API_GIT}`
+            }
+
+        });
+        let resp = await request.json();
+        const owner = resp.owner.login;
+        const repoName = resp.name;
+
+        const requestContent = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/makerchip`, {
+            headers: {
+                'Authorization': `token ${token}`
+            }
+        });
+        let respContent = await requestContent.json();
+        let thumbExists = _.find(respContent, data => {
+            return data.name.indexOf(".png") >= 0;
+        });
+        const thumbUrl = (thumbExists) ? thumbExists.download_url : 'Imagen no disponible';
+        let respMap = {
+            "id": id,
+            "title": repoName,
+            "description": resp.description,
+            "instructions": "",
+            "visibility": "visible",
+            "public": true,
+            "comments_allowed": true,
+            "is_published": true,
+            "author": {
+                "id": 61943259,
+                "username": owner,
+                "scratchteam": false,
+                "history": {
+                    "joined": resp.updated_at
+                },
+                "profile": {
+                    "id": resp.owner.id,
+                    "images": {
+                        "90x90": resp.owner.avatar_url,
+                        "60x60": resp.owner.avatar_url,
+                        "55x55": resp.owner.avatar_url,
+                        "50x50": resp.owner.avatar_url,
+                        "32x32": resp.owner.avatar_url
+                    }
+                }
+            },
+            "image": thumbUrl,
+            "images": {
+                "282x218": thumbUrl,
+                "216x163": thumbUrl,
+                "200x200": thumbUrl,
+                "144x108": thumbUrl,
+                "135x102": thumbUrl,
+                "100x80": thumbUrl
+            },
+            "history": {
+                "created": resp.created_at,
+                "modified": resp.updated_at,
+                "shared": resp.pushed_at
+            },
+            "stats": {
+                "views": resp.watchers,
+                "loves": 200,
+                "favorites": 300,
+                "remixes": 90
+            },
+            "remix": {
+                "parent": resp.parent.node_id,
+                "root": null
+            }
+
+        };
+        return respMap;
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+
+
 module.exports = {
     getAccessToken,
     getDataUserGithub,
@@ -192,5 +328,8 @@ module.exports = {
     createRepoAndUploadFilesByUserWithTokenAuth,
     getContentRepo,
     getContentRepoMC,
-    findAllRepoMC
+    findAllRepoMC,
+    getRepoMongo,
+    updateRepos,
+    detailRepo
 }
