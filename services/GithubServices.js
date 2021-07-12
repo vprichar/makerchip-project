@@ -251,7 +251,6 @@ const detailRepo = async (id, token) => {
     const repoName = resp.name;
     console.log(id);
     console.log(owner);
-    console.log(repoName);
     console.log(token);
     console.log('////////////////////////////////');
 
