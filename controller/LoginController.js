@@ -204,7 +204,7 @@ const getContentRepo = async (req, res) => {
 const detailRepo = async (req, res) => {
     try {
         const id = req.params.id;
-        const access_token = (req.headers.authorization) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
+        const access_token = (req.headers.authorization && req.headers.authorization.length > 10 ) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
         const infoRepo = await serviceGithub.detailRepo(id, access_token);
         res.status(200).send(infoRepo)
     } catch (error) {
