@@ -1,6 +1,8 @@
 const fetch = require('node-fetch');
 const _ = require('lodash');
-const RepositoryMC = require("../models/RepositoryMC")
+const RepositoryMC = require("../models/RepositoryMC");
+const loveCount = require("../models/loveCount");
+
 const mongoose = require('mongoose');
 
 
@@ -76,6 +78,126 @@ const getReposByOrganization = async (token) => {
     }
 }
 
+const getRepos = async (token) => {
+    try {
+        const request = await fetch(`${process.env.API_URL_GITHUB}/user/repos`, {
+            headers: {
+                'Authorization': `token ${token}`
+            }
+        });
+
+        return  await request.json();
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+const getContent = async (owner, repoName, token) => {
+    try {
+        const request = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/`, {
+            headers: {
+                'Authorization': `token ${token}`
+            }
+        });
+        return await request.json();
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+const getThumb = async (owner, repoName, token) => {
+    try {
+        const requestContent = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/makerchip`, {
+            headers: {
+                'Authorization': `token ${token}`
+            }
+        });
+        return await requestContent.json();
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+const repoOnlyUser = async (token) => {
+    try {
+        let respMc = [];
+        let repos = await getRepos(token);
+        for (const repo of repos) {
+            const owner = repo.owner.login;
+            const repoName = repo.name;
+            const contentRepo = await getContent(owner, repoName, token);
+            let exists = _.find(contentRepo, data => {
+                return data.name == 'makerchip.json';
+            });
+
+            if (exists) {
+                const findThumb = await getThumb(owner, repoName, token);
+
+                let thumbExists = _.find(findThumb, data => {
+                    return data.name.indexOf(".png") >= 0;
+                });
+                repo.thumbUrl = (thumbExists) ? thumbExists.download_url : '';
+                let response = {};
+                let [respMongo] = await RepositoryMC.find({id: repo.id});
+                console.log(respMongo);
+                response['thumbnail_url'] = repo.thumbUrl;
+                response['title'] = repoName;
+                response['creator'] = owner;
+                response['type'] = 'project';
+                response['id'] = repo.id;
+                response['love_count'] = respMongo.love_count;
+                response['stars'] = repo.stargazers_count;
+                respMc.push(response);
+                console.log(response);
+            }
+        }
+        return respMc;
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+const addRemoveLove = async (id, token) => {
+    try {
+        const [respMongoLove] = await loveCount.find({idRepo: id, idToken: token }); 
+        console.log(respMongoLove);
+        let resp = {};
+        if(respMongoLove) {
+            let [respMongoRepo] = await RepositoryMC.find({id: id});
+            respMongoRepo.love_count --;
+            console.log(respMongoRepo.love_count);
+            const query = { id: id };
+            await loveCount.remove({idRepo: id, idToken: token });
+        
+            await RepositoryMC.findOneAndUpdate(query, respMongoRepo, { upsert: true })
+            resp = {
+                count : respMongoRepo.love_count,
+                loving: false,
+            };
+            return resp;
+        }
+        else {
+            let [respMongoRepo] = await RepositoryMC.find({id: id});
+            respMongoRepo.love_count ++;
+            console.log(respMongoRepo.love_count);
+            const query = { id: id };
+            const qsave = {idRepo: id, idToken: token};
+            const loveCountRegister = new loveCount(qsave);
+            await loveCountRegister.save();
+            await RepositoryMC.findOneAndUpdate(query, respMongoRepo, { upsert: true })
+            resp = {
+                count : respMongoRepo.love_count,
+                loving: true,
+            };
+            return resp;
+        }
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+
+
 const findAllRepoMC = async (token) => {
     try {
         let resp = await RepositoryMC.find({});
@@ -126,7 +248,6 @@ const updateRepos = async (repos) => {
             response['creator'] = owner;
             response['type'] = 'project';
             response['id'] = repo.id;
-            response['love_count'] = repo.love_count;
             response['stars'] = resp.stargazers_count;
             const query = { id: resp.id };
             await RepositoryMC.findOneAndUpdate(query, response, { upsert: true });
@@ -237,7 +358,7 @@ const createRepoAndUploadFilesByUserWithTokenAuth = async (token) => {
 }
 
 const detailRepo = async (id, token) => {
-
+ 
     try {
         const request = await fetch(`${process.env.API_URL_GITHUB}/repositories/${id}`, {
             headers: {
@@ -247,21 +368,22 @@ const detailRepo = async (id, token) => {
         });
     
         let resp = await request.json();
-        console.log(resp);
         const owner = resp.owner.login;
         const repoName = resp.name;
-        console.log(id);
-        console.log(owner);
-        console.log(token);
-        console.log('////////////////////////////////');
-    
         const requestContent = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/makerchip`, {
             headers: {
                 'Authorization': `token ${token}`
             }
         });
         let respContent = await requestContent.json();
-        console.log(respContent);
+
+        const requestReadme = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/README.md`, {
+            headers: {
+                'Authorization': `token ${token}`
+            }
+        });
+        let respReadme = await requestReadme.json();
+        const readme = (respReadme) ? Buffer.from(respReadme.content, 'base64').toString() : 'Readme no disponible';
         let thumbExists = _.find(respContent, data => {
             return data.name.indexOf(".png") >= 0;
         });
@@ -270,8 +392,8 @@ const detailRepo = async (id, token) => {
         let respMap = {
             "id": id,
             "title": repoName,
-            "description": resp.description,
-            "instructions": "",
+            "description": resp.description,            
+            "instructions": readme,
             "visibility": "visible",
             "public": true,
             "comments_allowed": true,
@@ -342,5 +464,7 @@ module.exports = {
     findAllRepoMC,
     getRepoMongo,
     updateRepos,
-    detailRepo
+    detailRepo,
+    repoOnlyUser,
+    addRemoveLove
 }

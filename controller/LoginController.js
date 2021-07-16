@@ -200,13 +200,43 @@ const getContentRepo = async (req, res) => {
     }
 }
 
-
 const detailRepo = async (req, res) => {
     try {
         const id = req.params.id;
         const access_token = (req.headers.authorization && req.headers.authorization.length > 10 ) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
         const infoRepo = await serviceGithub.detailRepo(id, access_token);
         res.status(200).send(infoRepo)
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: 'Not saved!',
+            data: {error}
+        })
+        throw new Error(error);
+    }
+}
+
+const repoOnlyUser = async (req, res) => {
+    try {
+        const access_token = (req.headers.authorization && req.headers.authorization.length > 10 ) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
+        const myRepos = await serviceGithub.repoOnlyUser(access_token);
+        res.status(200).send(myRepos)
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: 'Not saved!',
+            data: {error}
+        })
+        throw new Error(error);
+    }
+}
+
+const addLove = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const access_token = (req.headers.authorization && req.headers.authorization.length > 10 ) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
+        const myRepos = await serviceGithub.addRemoveLove(id, access_token);
+        res.status(200).send(myRepos)
     } catch (error) {
         res.status(500).send({
             error: true,
@@ -226,5 +256,7 @@ module.exports = {
     savePingWebHookEvent,
     getContentRepo,
     findAllRepo,
-    detailRepo
+    detailRepo,
+    repoOnlyUser,
+    addLove
 }

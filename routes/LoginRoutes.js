@@ -8,7 +8,9 @@ const {
     savePingWebHookEvent,
     getContentRepo,
     findAllRepo,
-    detailRepo
+    detailRepo,
+    repoOnlyUser,
+    addLove
 } = require('../controller/LoginController')
 
 router.get('/login/github', makeLoginWithGithub);
@@ -19,4 +21,8 @@ router.post('/hooks', savePingWebHookEvent);
 router.get('/getContentRepo', getContentRepo);
 router.get('/getAllRepo', findAllRepo);
 router.get('/projects/:id', detailRepo);
+router.get('/getMyRepo', repoOnlyUser);
+router.get('/addLove/:id', addLove);
+
+
 module.exports = router;
