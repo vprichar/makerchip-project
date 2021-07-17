@@ -2,6 +2,7 @@ const fetch = require('node-fetch');
 const _ = require('lodash');
 const RepositoryMC = require("../models/RepositoryMC");
 const loveCount = require("../models/loveCount");
+const Comment = require("../models/Comment");
 
 const mongoose = require('mongoose');
 
@@ -86,7 +87,7 @@ const getRepos = async (token) => {
             }
         });
 
-        return  await request.json();
+        return await request.json();
     } catch (error) {
         throw new Error(error);
     }
@@ -138,7 +139,7 @@ const repoOnlyUser = async (token) => {
                 });
                 repo.thumbUrl = (thumbExists) ? thumbExists.download_url : '';
                 let response = {};
-                let [respMongo] = await RepositoryMC.find({id: repo.id});
+                let [respMongo] = await RepositoryMC.find({ id: repo.id });
                 console.log(respMongo);
                 response['thumbnail_url'] = repo.thumbUrl;
                 response['title'] = repoName;
@@ -159,34 +160,33 @@ const repoOnlyUser = async (token) => {
 
 const addRemoveLove = async (id, token) => {
     try {
-        const [respMongoLove] = await loveCount.find({idRepo: id, idToken: token }); 
-        console.log(respMongoLove);
+        const [respMongoLove] = await loveCount.find({ idRepo: id, idToken: token });
         let resp = {};
-        if(respMongoLove) {
-            let [respMongoRepo] = await RepositoryMC.find({id: id});
-            respMongoRepo.love_count --;
+        if (respMongoLove) {
+            let [respMongoRepo] = await RepositoryMC.find({ id: id });
+            respMongoRepo.love_count--;
             console.log(respMongoRepo.love_count);
             const query = { id: id };
-            await loveCount.remove({idRepo: id, idToken: token });
-        
+            await loveCount.remove({ idRepo: id, idToken: token });
+
             await RepositoryMC.findOneAndUpdate(query, respMongoRepo, { upsert: true })
             resp = {
-                count : respMongoRepo.love_count,
+                count: respMongoRepo.love_count,
                 loving: false,
             };
             return resp;
         }
         else {
-            let [respMongoRepo] = await RepositoryMC.find({id: id});
-            respMongoRepo.love_count ++;
+            let [respMongoRepo] = await RepositoryMC.find({ id: id });
+            respMongoRepo.love_count++;
             console.log(respMongoRepo.love_count);
             const query = { id: id };
-            const qsave = {idRepo: id, idToken: token};
+            const qsave = { idRepo: id, idToken: token };
             const loveCountRegister = new loveCount(qsave);
             await loveCountRegister.save();
             await RepositoryMC.findOneAndUpdate(query, respMongoRepo, { upsert: true })
             resp = {
-                count : respMongoRepo.love_count,
+                count: respMongoRepo.love_count,
                 loving: true,
             };
             return resp;
@@ -265,6 +265,8 @@ const getContentRepoMC = async (repos, token) => {
         onlyMC = [];
         for (const repo of repos) {
             const owner = repo.owner.login;
+            const ownerId = repo.owner.id;
+            const avatarOwner = repo.owner.avatar_url;
             const repoName = repo.name;
             const request = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/`, {
                 headers: {
@@ -286,36 +288,37 @@ const getContentRepoMC = async (repos, token) => {
                     return data.name.indexOf(".png") >= 0;
                 });
                 repo.thumbUrl = (thumbExists) ? thumbExists.download_url : 'Imagen no disponible';
-
+                const [findRepo] = await RepositoryMC.find({ id: repo.id });
+                let love = (findRepo) ? findRepo.love_count : 0;
                 let response = {};
                 response['thumbnail_url'] = repo.thumbUrl;
                 response['title'] = repo.name;
                 response['creator'] = repo.owner.login;
                 response['type'] = 'project';
                 response['id'] = repo.id;
-                response['love_count'] = 0;
+                response['love_count'] = love;
                 response['stars'] = repo.stargazers_count;
-                //response['clone_url'] = repo.clone_url;
+                response['ownerId'] = ownerId;
+                response['avatarOwner'] = avatarOwner;
+
                 const query = { id: repo.id };
                 await RepositoryMC.findOneAndUpdate(query, response, { upsert: true });
                 onlyMC.push(response);
             }
         }
-        let todoRepo = await findAllRepoMC(token);
         let output = [];
-        if (todoRepo) {
-            output = todoRepo.map((repo) => {
-                return {
-                    thumbnail_url: repo.thumbnail_url,
-                    title: repo.title,
-                    creator: repo.creator,
-                    type: repo.type,
-                    id: repo.id,
-                    love_count: repo.love_count,
-                    stars: repo.stars,
-                };
-            });
-        }
+        output = onlyMC.map((repo) => {
+            return {
+                thumbnail_url: repo.thumbnail_url,
+                title: repo.title,
+                creator: repo.creator,
+                type: repo.type,
+                id: repo.id,
+                love_count: repo.love_count,
+                stars: repo.stars,
+            };
+        });
+
         let salida = _.uniqWith(output, _.isEqual);
         return salida;
     } catch (error) {
@@ -358,15 +361,15 @@ const createRepoAndUploadFilesByUserWithTokenAuth = async (token) => {
 }
 
 const detailRepo = async (id, token) => {
- 
+
     try {
         const request = await fetch(`${process.env.API_URL_GITHUB}/repositories/${id}`, {
             headers: {
                 'Authorization': `token ${token}`
             }
-    
+
         });
-    
+
         let resp = await request.json();
         const owner = resp.owner.login;
         const repoName = resp.name;
@@ -392,7 +395,7 @@ const detailRepo = async (id, token) => {
         let respMap = {
             "id": id,
             "title": repoName,
-            "description": resp.description,            
+            "description": resp.description,
             "instructions": readme,
             "visibility": "visible",
             "public": true,
@@ -440,17 +443,61 @@ const detailRepo = async (id, token) => {
                 "parent": parent,
                 "root": null
             }
-    
+
         };
         console.log('FIN service');
         return respMap;
-        
+
     } catch (error) {
         console.log(error);
         next(error);
     }
 }
 
+const addComment = async (idRepo, token, parent_id, content) => {
+    try {
+        let [repos] = await getRepos(token);
+        const comment = {
+            idRepo,
+            idToken: token,
+            content,
+            parent_id,
+            visibility: 'visible',
+            author: {
+                id: repos.owner.id,
+                username: repos.owner.login,
+                image: repos.owner.avatar_url,
+            },
+            reply_count: 0
+        };
+
+        const commentSave = new Comment(comment);
+        return await commentSave.save();
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+const getComment = async (idRepo) => {
+    try {
+        const comments = await Comment.find({ idRepo: idRepo }, { __v: 0 });
+        const output = comments.map((comment) => {
+            return {
+                parent_id: comment.parent_id,
+                commentee_id: comment._id,
+                content: comment.content,
+                datetime_created: comment.createdAt,
+                datetime_modified: comment.updatedAt,
+                visibility: comment.visibility,
+                author: comment.author,
+                reply_count: comment.reply_count
+            };
+        });
+        return output;
+    } catch (error) {
+        throw new Error(error);
+    }
+}
 
 
 module.exports = {
@@ -466,5 +513,7 @@ module.exports = {
     updateRepos,
     detailRepo,
     repoOnlyUser,
-    addRemoveLove
+    addRemoveLove,
+    addComment,
+    getComment
 }

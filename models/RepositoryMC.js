@@ -9,6 +9,8 @@ const RepositoryMC = Schema({
     id: Number,
     love_count: Number,
     stars: Number,
+    ownerId: Number,
+    avatarOwner: String
 })
 
 module.exports = mongoose.model('RepositoryMC', RepositoryMC)

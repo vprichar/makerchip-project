@@ -77,7 +77,7 @@ const findAllRepo = async (req, res) => {
 const searchRepositoryOrgByUser = async (req, res) => {
     try {
         let community_newest_projects = {};
-        if (req.headers.authorization && req.headers.authorization.length > 10 ) {
+        if (req.headers.authorization && req.headers.authorization.length > 10) {
             const access_token = req.headers.authorization.split(' ')[1];
             const user = await serviceGithub.getDataUserGithub(access_token);
             if (user) {
@@ -203,14 +203,14 @@ const getContentRepo = async (req, res) => {
 const detailRepo = async (req, res) => {
     try {
         const id = req.params.id;
-        const access_token = (req.headers.authorization && req.headers.authorization.length > 10 ) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
+        const access_token = (req.headers.authorization && req.headers.authorization.length > 10) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
         const infoRepo = await serviceGithub.detailRepo(id, access_token);
         res.status(200).send(infoRepo)
     } catch (error) {
         res.status(500).send({
             error: true,
             message: 'Not saved!',
-            data: {error}
+            data: { error }
         })
         throw new Error(error);
     }
@@ -218,14 +218,14 @@ const detailRepo = async (req, res) => {
 
 const repoOnlyUser = async (req, res) => {
     try {
-        const access_token = (req.headers.authorization && req.headers.authorization.length > 10 ) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
+        const access_token = (req.headers.authorization && req.headers.authorization.length > 10) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
         const myRepos = await serviceGithub.repoOnlyUser(access_token);
         res.status(200).send(myRepos)
     } catch (error) {
         res.status(500).send({
             error: true,
             message: 'Not saved!',
-            data: {error}
+            data: { error }
         })
         throw new Error(error);
     }
@@ -234,14 +234,47 @@ const repoOnlyUser = async (req, res) => {
 const addLove = async (req, res) => {
     try {
         const id = req.params.id;
-        const access_token = (req.headers.authorization && req.headers.authorization.length > 10 ) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
+        const access_token = (req.headers.authorization && req.headers.authorization.length > 10) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
         const myRepos = await serviceGithub.addRemoveLove(id, access_token);
         res.status(200).send(myRepos)
     } catch (error) {
         res.status(500).send({
             error: true,
             message: 'Not saved!',
-            data: {error}
+            data: { error }
+        })
+        throw new Error(error);
+    }
+}
+
+const addComment = async (req, res) => {
+    try {
+        const idRepo = req.body.idRepo;
+        const parent_id = (req.body.parent_id) ? req.body.parent_id : null;
+        const comment = req.body.comment;
+        const access_token = (req.headers.authorization && req.headers.authorization.length > 10) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
+        const addComment = await serviceGithub.addComment(idRepo, access_token, parent_id, comment);
+        res.status(200).send(addComment)
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: 'Not saved!',
+            data: { error }
+        })
+        throw new Error(error);
+    }
+}
+
+const getComment = async (req, res) => {
+    try {
+        const idRepo = req.params.id;
+        const getComments = await serviceGithub.getComment(idRepo);
+        res.status(200).send(getComments)
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: 'Not saved!',
+            data: { error }
         })
         throw new Error(error);
     }
@@ -258,5 +291,7 @@ module.exports = {
     findAllRepo,
     detailRepo,
     repoOnlyUser,
-    addLove
+    addLove,
+    addComment,
+    getComment
 }

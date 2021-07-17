@@ -10,7 +10,9 @@ const {
     findAllRepo,
     detailRepo,
     repoOnlyUser,
-    addLove
+    addLove,
+    addComment,
+    getComment
 } = require('../controller/LoginController')
 
 router.get('/login/github', makeLoginWithGithub);
@@ -23,6 +25,8 @@ router.get('/getAllRepo', findAllRepo);
 router.get('/projects/:id', detailRepo);
 router.get('/getMyRepo', repoOnlyUser);
 router.get('/addLove/:id', addLove);
+router.post('/addComment', addComment);
+router.get('/getComment/:id', getComment);
 
 
 module.exports = router;
