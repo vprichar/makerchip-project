@@ -1,7 +1,7 @@
 const HookEvent = require("../models/HookEvent")
 
 const saveResponseFromGithub = async (req,res)=> {
-    console.log(req.body)
+    console.log('ESTO ES EL BODY DE UN HOOK', req.body)
     const hookRegister = new HookEvent(req.body);
     hookRegister.save();
     
