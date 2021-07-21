@@ -12,10 +12,11 @@ const {
     repoOnlyUser,
     addLove,
     addComment,
-    getComment
+    getComment,
+    makeLoginWithGithubV2
 } = require('../controller/LoginController')
 
-router.get('/login/github', makeLoginWithGithub);
+router.get('/login/github', makeLoginWithGithubV2);
 router.get('/logout', makeLogOutEraseToken);
 router.get('/callback', searchAccessTokenGithubWithCode);
 router.get('/repository', searchRepositoryOrgByUser);
@@ -27,6 +28,7 @@ router.get('/getMyRepo', repoOnlyUser);
 router.get('/addLove/:id', addLove);
 router.post('/addComment', addComment);
 router.get('/getComment/:id', getComment);
+
 
 
 module.exports = router;

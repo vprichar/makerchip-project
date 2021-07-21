@@ -21,6 +21,20 @@ const makeLoginWithGithub = async (req, res) => {
     }
 }
 
+
+const makeLoginWithGithubV2 = async (req, res) => {
+    try {
+   
+        res.send({
+            error: false,
+            message: 'Authorization',
+            data: `https://github.com/apps/proyecta2`
+        });
+    } catch (error) {
+        throw new Error(error);
+    }
+} 
+
 const makeLogOutEraseToken = async (req, res) => {
     try {
         if (req.session.access_token !== null) {
@@ -293,5 +307,6 @@ module.exports = {
     repoOnlyUser,
     addLove,
     addComment,
-    getComment
+    getComment,
+    makeLoginWithGithubV2
 }
