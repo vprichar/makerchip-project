@@ -8,6 +8,8 @@ const cookies = require('cookie-session');
 const app = new express();
 const conf = require('./package.json');
 const loginRoutes = require('./routes/LoginRoutes');
+const githubRoutes = require('./routes/GithubRoutes');
+
 const db = require('./config/Database');
 
 
@@ -36,6 +38,8 @@ app.use(cookies({
 }))
 
 app.use('/api', loginRoutes);
+app.use('/api', githubRoutes);
+
 
 app.get('/', (req, res) => {
     const config1 = conf;

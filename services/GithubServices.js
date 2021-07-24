@@ -3,6 +3,7 @@ const _ = require('lodash');
 const RepositoryMC = require("../models/RepositoryMC");
 const loveCount = require("../models/loveCount");
 const Comment = require("../models/Comment");
+const User = require("../models/User");
 
 const mongoose = require('mongoose');
 
@@ -25,7 +26,9 @@ const getAccessToken = async (
         });
         const text = await request.text();
         const params = new URLSearchParams(text);
-        console.log(params);
+        console.log("asdasd", params);
+
+
 
         return params.get('access_token');
     } catch (error) {
@@ -47,19 +50,6 @@ const getDataUserGithub = async (token) => {
 
 }
 
-const getOrganizationsByUser = async (token) => {
-    try {
-        const request = await fetch(`${process.env.API_URL_GITHUB}/orgs/${process.env.API_ORG_EXAMPLE}/members/ichavezf`, {
-            headers: {
-                'Authorization': `token ${token}`
-            }
-        });
-        return await request.json();
-    } catch (error) {
-        throw new Error(error);
-    }
-
-}
 
 const getReposByOrganization = async (token) => {
     try {
@@ -195,8 +185,6 @@ const addRemoveLove = async (id, token) => {
         throw new Error(error);
     }
 }
-
-
 
 const findAllRepoMC = async (token) => {
     try {
@@ -503,7 +491,6 @@ const getComment = async (idRepo) => {
 module.exports = {
     getAccessToken,
     getDataUserGithub,
-    getOrganizationsByUser,
     getReposByOrganization,
     createRepoAndUploadFilesByUserWithTokenAuth,
     getContentRepo,

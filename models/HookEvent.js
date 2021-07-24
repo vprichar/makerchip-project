@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 const HookEventSchema = Schema({
     ref: String,
     before: String,
+    repositories: [],
     repository: {},
     pusher:{},
     sender:{},
