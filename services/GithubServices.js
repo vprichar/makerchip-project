@@ -119,6 +119,36 @@ const getThumb = async (owner, repoName, token) => {
     }
 }
 
+const getReadme = async (owner, repoName, token) => {
+    try {
+        const requestReadme = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/README.md`, {
+            headers: {
+                'Authorization': `token ${token}`
+            }
+        });
+        let respReadme = await requestReadme.json();
+        const readme = (respReadme) ? Buffer.from(respReadme.content, 'base64').toString() : 'Readme no disponible';
+        return readme;
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+
+const updateRepoMongo = async (idRepo) => {
+    try {
+        const request = await fetch(`${process.env.API_URL_GITHUB}/repositories/${repo.id}`, {
+            headers: {
+                'Authorization': `token ${process.env.TOKEN_API_GIT}`
+            }
+        });
+        let resp = await request.json();
+
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
 const repoOnlyUser = async (token) => {
     try {
         let respMc = [];
@@ -133,6 +163,8 @@ const repoOnlyUser = async (token) => {
             });
 
             if (exists) {
+                const readme = await getReadme(owner, repoName, token);
+                const parent = (repo.parent) ? repo.parent.node_id : 'Parent no disponible'
                 const findThumb = await getThumb(owner, repoName, token);
                 let thumbExists = _.find(findThumb, data => {
                     return data.name.indexOf(".png") >= 0;
@@ -145,14 +177,19 @@ const repoOnlyUser = async (token) => {
                 response['thumbnail_url'] = repo.thumbUrl;
                 response['title'] = repoName;
                 response['creator'] = owner;
+                response['description'] = repo.description;
                 response['type'] = 'project';
                 response['id'] = repo.id;
                 response['love_count'] = love_count;
                 response['stars'] = repo.stargazers_count;
                 response['avatarOwner'] = avatarOwner;
-                respMc.push(response);
-                await RepositoryMC.findOneAndUpdate(query, response, { upsert: true })
+                response['readme'] = readme;
+                response['parent'] = parent;
+                response['created_atRepo'] = repo.created_at;
+                response['watchers'] = repo.watchers;
 
+                respMc.push(response);
+                await RepositoryMC.findOneAndUpdate(query, response, { upsert: true });
             }
         }
         return respMc;
@@ -364,84 +401,57 @@ const createRepoAndUploadFilesByUserWithTokenAuth = async (token) => {
 const detailRepo = async (id, token) => {
 
     try {
-        const request = await fetch(`${process.env.API_URL_GITHUB}/repositories/${id}`, {
-            headers: {
-                'Authorization': `token ${token}`
-            }
+        const [findRepo] = await RepositoryMC.find({ id: repo.id });
 
-        });
-
-        let resp = await request.json();
-        const owner = resp.owner.login;
-        const repoName = resp.name;
-        const requestContent = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/makerchip`, {
-            headers: {
-                'Authorization': `token ${token}`
-            }
-        });
-        let respContent = await requestContent.json();
-
-        const requestReadme = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/README.md`, {
-            headers: {
-                'Authorization': `token ${token}`
-            }
-        });
-        let respReadme = await requestReadme.json();
-        const readme = (respReadme) ? Buffer.from(respReadme.content, 'base64').toString() : 'Readme no disponible';
-        let thumbExists = _.find(respContent, data => {
-            return data.name.indexOf(".png") >= 0;
-        });
-        const thumbUrl = (thumbExists) ? thumbExists.download_url : 'Imagen no disponible';
-        const parent = (resp.parent) ? resp.parent.node_id : 'Parent no disponible'
         let respMap = {
             "id": id,
-            "title": repoName,
-            "description": resp.description,
-            "instructions": readme,
+            "title": findRepo.title,
+            "description": findRepo.description,
+            "instructions": findRepo.readme,
             "visibility": "visible",
             "public": true,
             "comments_allowed": true,
             "is_published": true,
             "author": {
-                "id": 61943259,
-                "username": owner,
+                "id": findRepo.ownerId,
+                "username": findRepo.creator,
                 "scratchteam": false,
                 "history": {
-                    "joined": resp.updated_at
+                    "joined": findRepo.updated_at
                 },
                 "profile": {
-                    "id": resp.owner.id,
+                    "id": findRepo.ownerId,
                     "images": {
-                        "90x90": resp.owner.avatar_url,
-                        "60x60": resp.owner.avatar_url,
-                        "55x55": resp.owner.avatar_url,
-                        "50x50": resp.owner.avatar_url,
-                        "32x32": resp.owner.avatar_url
+                        "90x90": findRepo.avatarOwner,
+                        "60x60": findRepo.avatarOwner,
+                        "55x55": findRepo.avatarOwner,
+                        "50x50": findRepo.avatarOwner,
+                        "32x32": findRepo.avatarOwner
                     }
                 }
             },
-            "image": thumbUrl,
+            "image": thumbnail_url,
             "images": {
-                "282x218": thumbUrl,
-                "216x163": thumbUrl,
-                "200x200": thumbUrl,
-                "144x108": thumbUrl,
-                "135x102": thumbUrl,
-                "100x80": thumbUrl
+                "282x218": findRepo.thumbnail_url,
+                "216x163": findRepo.thumbnail_url,
+                "200x200": findRepo.thumbnail_url,
+                "144x108": findRepo.thumbnail_url,
+                "135x102": findRepo.thumbnail_url,
+                "100x80": findRepo.thumbnail_url
             },
             "history": {
-                "created": resp.created_at,
-                "modified": resp.updated_at,
-                "shared": resp.pushed_at
+                "created": findRepo.created_atRepo,
+                "modified": findRepo.updated_at,
+                "shared": findRepo.updated_at
             },
             "stats": {
-                "views": resp.watchers,
-                "loves": 200,
+                "views": findRepo.watchers,
+                "loves": findRepo.love_count,
                 "favorites": 300,
                 "remixes": 90
             },
             "remix": {
-                "parent": parent,
+                "parent": findRepo.parent,
                 "root": null
             }
 
@@ -515,5 +525,7 @@ module.exports = {
     repoOnlyUser,
     addRemoveLove,
     addComment,
-    getComment
+    getComment,
+    updateRepoMongo,
+    getReadme
 }

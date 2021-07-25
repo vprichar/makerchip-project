@@ -10,7 +10,12 @@ const RepositoryMC = Schema({
     love_count: Number,
     stars: Number,
     ownerId: Number,
-    avatarOwner: String
+    avatarOwner: String,
+    readme : String,
+    parent: String,
+    description: String,
+    created_atRepo: Date,
+    watchers: Number,
 },
     { timestamps: true }
 )
