@@ -160,6 +160,7 @@ const updateRepoMongo = async (idRepo, token) => {
         const repoName = repo.name;
         const ownerId = repo.owner.id;
         const avatarOwner = repo.owner.avatar_url;
+        let response = {};
         const contentRepo = await getContent(owner, repoName, token);
         let exists = _.find(contentRepo, data => {
             return data.name == 'makerchip.json';
@@ -173,7 +174,6 @@ const updateRepoMongo = async (idRepo, token) => {
                 return data.name.indexOf(".png") >= 0;
             });
             repo.thumbUrl = (thumbExists) ? thumbExists.download_url : '';
-            let response = {};
             const query = { id: repo.id }
             let [respMongo] = await RepositoryMC.find(query);
             let love_count = (respMongo) ? respMongo.love_count : 0;
@@ -193,7 +193,6 @@ const updateRepoMongo = async (idRepo, token) => {
             response['watchers'] = repo.watchers;
             await RepositoryMC.findOneAndUpdate(query, response, { upsert: true });
         }
-        console.log('FIN update');
         return response;
     } catch (error) {
         throw new Error(error);
