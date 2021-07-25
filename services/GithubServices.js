@@ -401,7 +401,7 @@ const createRepoAndUploadFilesByUserWithTokenAuth = async (token) => {
 const detailRepo = async (id, token) => {
 
     try {
-        const [findRepo] = await RepositoryMC.find({ id: repo.id });
+        const [findRepo] = await RepositoryMC.find({ id: id });
 
         let respMap = {
             "id": id,
