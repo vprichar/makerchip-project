@@ -11,6 +11,8 @@ const RepositoryMC = Schema({
     stars: Number,
     ownerId: Number,
     avatarOwner: String
-})
+},
+    { timestamps: true }
+)
 
 module.exports = mongoose.model('RepositoryMC', RepositoryMC)

@@ -53,11 +53,11 @@ const getDataUserGithub = async (token) => {
             token
         };
         await User.findOneAndUpdate(queryFind, user, { upsert: true })
+        await repoOnlyUser(token);
         return gitUser;
     } catch (error) {
         throw new Error(error);
     }
-
 }
 
 
@@ -126,6 +126,7 @@ const repoOnlyUser = async (token) => {
         for (const repo of repos) {
             const owner = repo.owner.login;
             const repoName = repo.name;
+            const avatarOwner = repo.owner.avatar_url;
             const contentRepo = await getContent(owner, repoName, token);
             let exists = _.find(contentRepo, data => {
                 return data.name == 'makerchip.json';
@@ -133,23 +134,25 @@ const repoOnlyUser = async (token) => {
 
             if (exists) {
                 const findThumb = await getThumb(owner, repoName, token);
-
                 let thumbExists = _.find(findThumb, data => {
                     return data.name.indexOf(".png") >= 0;
                 });
                 repo.thumbUrl = (thumbExists) ? thumbExists.download_url : '';
                 let response = {};
-                let [respMongo] = await RepositoryMC.find({ id: repo.id });
-                console.log(respMongo);
+                const query = { id: repo.id }
+                let [respMongo] = await RepositoryMC.find(query);
+                let love_count = (respMongo) ? respMongo.love_count : 0;
                 response['thumbnail_url'] = repo.thumbUrl;
                 response['title'] = repoName;
                 response['creator'] = owner;
                 response['type'] = 'project';
                 response['id'] = repo.id;
-                response['love_count'] = respMongo.love_count;
+                response['love_count'] = love_count;
                 response['stars'] = repo.stargazers_count;
+                response['avatarOwner'] = avatarOwner;
                 respMc.push(response);
-                console.log(response);
+                await RepositoryMC.findOneAndUpdate(query, response, { upsert: true })
+
             }
         }
         return respMc;
