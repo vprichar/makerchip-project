@@ -193,8 +193,7 @@ const updateRepoMongo = async (idRepo, token) => {
             response['watchers'] = repo.watchers;
             await RepositoryMC.findOneAndUpdate(query, response, { upsert: true });
         }
-
-        console.log("SALI DE updatear REPO desde un webHook");
+        console.log('FIN update');
         return response;
     } catch (error) {
         throw new Error(error);
