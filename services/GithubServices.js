@@ -430,7 +430,7 @@ const detailRepo = async (id, token) => {
                     }
                 }
             },
-            "image": thumbnail_url,
+            "image": findRepo.thumbnail_url,
             "images": {
                 "282x218": findRepo.thumbnail_url,
                 "216x163": findRepo.thumbnail_url,
