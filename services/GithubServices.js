@@ -24,7 +24,7 @@ const getAccessToken = async (
         });
         const text = await request.text();
         const params = new URLSearchParams(text);
-        console.log("asdasd", params);
+        console.log("USER params", params);
 
 
 
@@ -193,6 +193,7 @@ const updateRepoMongo = async (idRepo, token) => {
             response['watchers'] = repo.watchers;
             await RepositoryMC.findOneAndUpdate(query, response, { upsert: true });
         }
+        console.log("Sali de updatear REPO desde un webHook");
         return response;
     } catch (error) {
         throw new Error(error);
