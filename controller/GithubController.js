@@ -78,8 +78,8 @@ const savePingWebHookEvent = async (req, res) => {
     try {
         const saved = await webhookService.saveResponseFromGithub(req, res);
         if (saved.repository) {
-            console.log("ENTREEE,", saved.repository.id);
-            let filter = { id: saved.repository.id };
+            const idRepo = saved.repository.id
+            let filter = { id: idRepo };
             const repoExists = await serviceGithub.findAllRepoMC(filter);
             if (repoExists) {
                 await serviceGithub.updateRepoMongo(idRepo, process.env.TOKEN_API_GIT);
