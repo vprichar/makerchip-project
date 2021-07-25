@@ -77,11 +77,12 @@ const createRepositoryGithubAndUploadFiles = async (req, res) => {
 const savePingWebHookEvent = async (req, res) => {
     try {
         const saved = await webhookService.saveResponseFromGithub(req, res);
-        const idRepo = saved.repository.id;
-        let filter = { id: idRepo };
-        const repoExists = await serviceGithub(filter);
-        if(repoExists) {
-            await serviceGithub.updateRepoMongo(idRepo, process.env.TOKEN_API_GIT);
+        if (saved.repository.id) {
+            let filter = { id: saved.repository.id };
+            const repoExists = await serviceGithub(filter);
+            if (repoExists) {
+                await serviceGithub.updateRepoMongo(idRepo, process.env.TOKEN_API_GIT);
+            }
         }
         res.status(200).send({
             error: false,
