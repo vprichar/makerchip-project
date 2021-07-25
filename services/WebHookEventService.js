@@ -5,7 +5,7 @@ const saveResponseFromGithub = async (req, res) => {
     const hookRegister = new HookEvent(req.body);
     hookRegister.save();
     console.log('saved')
-    return true;
+    return hookRegister;
 }
 
 module.exports = {
