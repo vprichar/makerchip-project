@@ -77,7 +77,7 @@ const createRepositoryGithubAndUploadFiles = async (req, res) => {
 const savePingWebHookEvent = async (req, res) => {
     try {
         const saved = await webhookService.saveResponseFromGithub(req, res);
-        if (saved.repository.id) {
+        if (saved.repository) {
             let filter = { id: saved.repository.id };
             const repoExists = await serviceGithub(filter);
             if (repoExists) {
