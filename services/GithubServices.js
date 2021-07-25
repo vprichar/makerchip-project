@@ -155,48 +155,47 @@ const getReadme = async (owner, repoName, token) => {
 const updateRepoMongo = async (idRepo, token) => {
     try {
         console.log("Entre a updatear REPO desde un webHook");
-        let repos = await getReposById(idRepo);
-        for (const repo of repos) {
-            const owner = repo.owner.login;
-            const repoName = repo.name;
-            const ownerId = repo.owner.id;
-            const avatarOwner = repo.owner.avatar_url;
-            const contentRepo = await getContent(owner, repoName, token);
-            let exists = _.find(contentRepo, data => {
-                return data.name == 'makerchip.json';
+        let repo = await getReposById(idRepo);
+        const owner = repo.owner.login;
+        const repoName = repo.name;
+        const ownerId = repo.owner.id;
+        const avatarOwner = repo.owner.avatar_url;
+        const contentRepo = await getContent(owner, repoName, token);
+        let exists = _.find(contentRepo, data => {
+            return data.name == 'makerchip.json';
+        });
+
+        if (exists) {
+            const readme = await getReadme(owner, repoName, token);
+            const parent = (repo.parent) ? repo.parent.node_id : 'Parent no disponible'
+            const findThumb = await getThumb(owner, repoName, token);
+            let thumbExists = _.find(findThumb, data => {
+                return data.name.indexOf(".png") >= 0;
             });
+            repo.thumbUrl = (thumbExists) ? thumbExists.download_url : '';
+            let response = {};
+            const query = { id: repo.id }
+            let [respMongo] = await RepositoryMC.find(query);
+            let love_count = (respMongo) ? respMongo.love_count : 0;
+            response['thumbnail_url'] = repo.thumbUrl;
+            response['title'] = repoName;
+            response['creator'] = owner;
+            response['description'] = repo.description;
+            response['type'] = 'project';
+            response['id'] = repo.id;
+            response['love_count'] = love_count;
+            response['stars'] = repo.stargazers_count;
+            response['avatarOwner'] = avatarOwner;
+            response['ownerId'] = ownerId;
+            response['readme'] = readme;
+            response['parent'] = parent;
+            response['created_atRepo'] = repo.created_at;
+            response['watchers'] = repo.watchers;
 
-            if (exists) {
-                const readme = await getReadme(owner, repoName, token);
-                const parent = (repo.parent) ? repo.parent.node_id : 'Parent no disponible'
-                const findThumb = await getThumb(owner, repoName, token);
-                let thumbExists = _.find(findThumb, data => {
-                    return data.name.indexOf(".png") >= 0;
-                });
-                repo.thumbUrl = (thumbExists) ? thumbExists.download_url : '';
-                let response = {};
-                const query = { id: repo.id }
-                let [respMongo] = await RepositoryMC.find(query);
-                let love_count = (respMongo) ? respMongo.love_count : 0;
-                response['thumbnail_url'] = repo.thumbUrl;
-                response['title'] = repoName;
-                response['creator'] = owner;
-                response['description'] = repo.description;
-                response['type'] = 'project';
-                response['id'] = repo.id;
-                response['love_count'] = love_count;
-                response['stars'] = repo.stargazers_count;
-                response['avatarOwner'] = avatarOwner;
-                response['ownerId'] = ownerId;
-                response['readme'] = readme;
-                response['parent'] = parent;
-                response['created_atRepo'] = repo.created_at;
-                response['watchers'] = repo.watchers;
-
-                respMc.push(response);
-                await RepositoryMC.findOneAndUpdate(query, response, { upsert: true });
-            }
+            respMc.push(response);
+            await RepositoryMC.findOneAndUpdate(query, response, { upsert: true });
         }
+
         console.log("SALI DE updatear REPO desde un webHook");
         return respMc;
     } catch (error) {
