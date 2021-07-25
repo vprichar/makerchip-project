@@ -53,7 +53,7 @@ const getDataUserGithub = async (token) => {
             token
         };
         await User.findOneAndUpdate(queryFind, user, { upsert: true })
-        await repoOnlyUser(token);
+        await saveRepos(token);
         return gitUser;
     } catch (error) {
         throw new Error(error);
@@ -61,19 +61,25 @@ const getDataUserGithub = async (token) => {
 }
 
 
-const getReposByOrganization = async (token) => {
+const getReposByOrganization = async () => {
     try {
-        console.log(token)
-        const request = await fetch(`${process.env.API_URL_GITHUB}/user/repos`, {
-            headers: {
-                'Authorization': `token ${token}`
-            }
+        const allRepo = await RepositoryMC.find();
+        let output = [];
+        output = allRepo.map((repo) => {
+            console.log(repo);
+            return {
+                thumbnail_url: repo.thumbnail_url,
+                title: repo.title,
+                creator: repo.creator,
+                type: repo.type,
+                id: repo.id,
+                love_count: repo.love_count,
+                stars: repo.stars,
+            };
         });
 
-        const allRepo = await request.json();
-        console.log(allRepo.length);
-
-        return await getContentRepoMC(allRepo, token);
+        let salida = _.uniqWith(output, _.isEqual);
+        return salida;
     } catch (error) {
         throw new Error(error);
     }
@@ -149,13 +155,15 @@ const updateRepoMongo = async (idRepo) => {
     }
 }
 
-const repoOnlyUser = async (token) => {
+const saveRepos = async (token) => {
     try {
         let respMc = [];
         let repos = await getRepos(token);
         for (const repo of repos) {
+            console.log(repo);
             const owner = repo.owner.login;
             const repoName = repo.name;
+            const ownerId = repo.owner.id;
             const avatarOwner = repo.owner.avatar_url;
             const contentRepo = await getContent(owner, repoName, token);
             let exists = _.find(contentRepo, data => {
@@ -183,6 +191,7 @@ const repoOnlyUser = async (token) => {
                 response['love_count'] = love_count;
                 response['stars'] = repo.stargazers_count;
                 response['avatarOwner'] = avatarOwner;
+                response['ownerId'] = ownerId;
                 response['readme'] = readme;
                 response['parent'] = parent;
                 response['created_atRepo'] = repo.created_at;
@@ -208,7 +217,6 @@ const addRemoveLove = async (id, token) => {
             console.log(respMongoRepo.love_count);
             const query = { id: id };
             await loveCount.remove({ idRepo: id, idToken: token });
-
             await RepositoryMC.findOneAndUpdate(query, respMongoRepo, { upsert: true })
             resp = {
                 count: respMongoRepo.love_count,
@@ -245,8 +253,7 @@ const findAllRepoMC = async (token) => {
     }
 }
 
-
-const getRepoMongo = async () => {
+const repoOnlyUser = async (token) => {
     try {
         const resp = await RepositoryMC.find({}, { _id: 0, __v: 0 });
         let salida = _.uniqWith(resp, _.isEqual);
@@ -256,109 +263,11 @@ const getRepoMongo = async () => {
     }
 }
 
-const updateRepos = async (repos) => {
+const getRepoMongo = async () => {
     try {
-        onlyMC = [];
-        for (const repo of repos) {
-            const request = await fetch(`${process.env.API_URL_GITHUB}/repositories/${repo.id}`, {
-                headers: {
-                    'Authorization': `token ${process.env.TOKEN_API_GIT}`
-                }
-
-            });
-            let resp = await request.json();
-            const owner = resp.owner.login;
-            const repoName = resp.name;
-
-            const requestContent = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/makerchip`, {
-                headers: {
-                    'Authorization': `token ${process.env.TOKEN_API_GIT}`
-                }
-            });
-            let respContent = await requestContent.json();
-            let thumbExists = _.find(respContent, data => {
-                return data.name.indexOf(".png") >= 0;
-            });
-            repo.thumbUrl = (thumbExists) ? thumbExists.download_url : '';
-            let response = {};
-            response['thumbnail_url'] = repo.thumbUrl;
-            response['title'] = repoName;
-            response['creator'] = owner;
-            response['type'] = 'project';
-            response['id'] = repo.id;
-            response['stars'] = resp.stargazers_count;
-            const query = { id: resp.id };
-            await RepositoryMC.findOneAndUpdate(query, response, { upsert: true });
-            onlyMC.push(response);
-        }
-        return onlyMC;
-    } catch (error) {
-        throw new Error(error);
-    }
-
-}
-
-const getContentRepoMC = async (repos, token) => {
-    try {
-        onlyMC = [];
-        for (const repo of repos) {
-            const owner = repo.owner.login;
-            const ownerId = repo.owner.id;
-            const avatarOwner = repo.owner.avatar_url;
-            const repoName = repo.name;
-            const request = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/`, {
-                headers: {
-                    'Authorization': `token ${token}`
-                }
-            });
-            let resp = await request.json();
-            let exists = _.find(resp, data => {
-                return data.name == 'makerchip.json';
-            });
-            if (exists) {
-                const requestContent = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/makerchip`, {
-                    headers: {
-                        'Authorization': `token ${token}`
-                    }
-                });
-                let respContent = await requestContent.json();
-                let thumbExists = _.find(respContent, data => {
-                    return data.name.indexOf(".png") >= 0;
-                });
-                repo.thumbUrl = (thumbExists) ? thumbExists.download_url : 'Imagen no disponible';
-                const [findRepo] = await RepositoryMC.find({ id: repo.id });
-                let love = (findRepo) ? findRepo.love_count : 0;
-                let response = {};
-                response['thumbnail_url'] = repo.thumbUrl;
-                response['title'] = repo.name;
-                response['creator'] = repo.owner.login;
-                response['type'] = 'project';
-                response['id'] = repo.id;
-                response['love_count'] = love;
-                response['stars'] = repo.stargazers_count;
-                response['ownerId'] = ownerId;
-                response['avatarOwner'] = avatarOwner;
-
-                const query = { id: repo.id };
-                await RepositoryMC.findOneAndUpdate(query, response, { upsert: true });
-                onlyMC.push(response);
-            }
-        }
-        let output = [];
-        output = onlyMC.map((repo) => {
-            return {
-                thumbnail_url: repo.thumbnail_url,
-                title: repo.title,
-                creator: repo.creator,
-                type: repo.type,
-                id: repo.id,
-                love_count: repo.love_count,
-                stars: repo.stars,
-            };
-        });
-
-        let salida = _.uniqWith(output, _.isEqual);
-        return salida;
+        const resp = await RepositoryMC.find({}, { _id: 0, __v: 0 });
+        let salida = _.uniqWith(resp, _.isEqual);
+        return await updateRepos(salida);
     } catch (error) {
         throw new Error(error);
     }
@@ -517,11 +426,10 @@ module.exports = {
     getReposByOrganization,
     createRepoAndUploadFilesByUserWithTokenAuth,
     getContentRepo,
-    getContentRepoMC,
     findAllRepoMC,
     getRepoMongo,
-    updateRepos,
     detailRepo,
+    saveRepos,
     repoOnlyUser,
     addRemoveLove,
     addComment,

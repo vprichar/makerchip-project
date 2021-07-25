@@ -23,46 +23,16 @@ const findAllRepo = async (req, res) => {
 
 const searchRepositoryOrgByUser = async (req, res) => {
     try {
-        let community_newest_projects = {};
-        if (req.headers.authorization && req.headers.authorization.length > 10) {
-            const access_token = req.headers.authorization.split(' ')[1];
-            const user = await serviceGithub.getDataUserGithub(access_token);
-            if (user) {
-                const data = {
-                    name: user.name,
-                    avatar_url: user.avatar_url,
-                    bio: user.bio,
-                    followers: user.followers,
-                    following: user.following,
-                    public_repos: user.public_repos
-                }
-                community_newest_projects = await serviceGithub.getReposByOrganization(access_token);
-                if (community_newest_projects) {
-                    res.status(200).send({ community_newest_projects });
-                } else {
-                    res.status(200).send({
-                        error: false,
-                        message: 'Repository',
-                        data: {}
-                    })
-                }
-            }
+        const community_newest_projects = await serviceGithub.getReposByOrganization();
+        if (community_newest_projects) {
+            res.status(200).send({ community_newest_projects });
+        } else {
+            res.status(200).send({
+                error: false,
+                message: 'Repository',
+                data: {}
+            })
         }
-        else {
-            console.log('Entro a sin token');
-            community_newest_projects = await serviceGithub.getRepoMongo();
-            if (community_newest_projects) {
-                res.status(200).send({ community_newest_projects });
-            } else {
-                res.status(200).send({
-                    error: false,
-                    message: 'Repository',
-                    data: {}
-                })
-            }
-
-        }
-
     } catch (error) {
         throw new Error(error);
     }
