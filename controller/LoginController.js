@@ -63,6 +63,7 @@ const searchAccessTokenGithubWithCode = async (req, res) => {
         );
         console.log(access_token);
         const user = await serviceGithub.getDataUserGithub(access_token);
+        console.log(user);
         if (user) {
             res.redirect(`${process.env.FRONT_URL_DNS}?token=${access_token}`)
         } else {

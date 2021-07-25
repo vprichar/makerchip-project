@@ -43,7 +43,17 @@ const getDataUserGithub = async (token) => {
                 'Authorization': `token ${token}`
             }
         });
-        return await request.json();
+        const gitUser = await request.json();
+        const queryFind = { idUser: gitUser.id }
+
+        await User.find(queryFind);
+        const user = {
+            userName: gitUser.login,
+            idUser: gitUser.id,
+            token
+        };
+        await User.findOneAndUpdate(queryFind, user, { upsert: true })
+        return gitUser;
     } catch (error) {
         throw new Error(error);
     }
