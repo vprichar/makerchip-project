@@ -154,6 +154,7 @@ const getReadme = async (owner, repoName, token) => {
 
 const updateRepoMongo = async (idRepo, token) => {
     try {
+        console.log("Entre a updatear REPO desde un webHook");
         let repos = await getReposById(idRepo);
         for (const repo of repos) {
             const owner = repo.owner.login;
@@ -196,8 +197,8 @@ const updateRepoMongo = async (idRepo, token) => {
                 await RepositoryMC.findOneAndUpdate(query, response, { upsert: true });
             }
         }
+        console.log("SALI DE updatear REPO desde un webHook");
         return respMc;
-
     } catch (error) {
         throw new Error(error);
     }
