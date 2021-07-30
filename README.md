@@ -67,14 +67,14 @@ Learn more here https://www.makerchip.com
 
 Create a .env file in the **root** folder with the following variables:
 
-PORT=
+* PORT=
 
 Github API keys:
 * URL_LOGIN_GITHUB=
 * API_GITHUB_SECRET=
 * API_GITHUB_ID=
 
-MongoDB connection credentials [documentation](For more info check https://docs.mongodb.com/manual/tutorial/manage-mongodb-processes/)
+MongoDB connection credentials [documentation](https://docs.mongodb.com/manual/tutorial/manage-mongodb-processes/)
 * MONGODB_URI2=
 * MONGODB_URI=
 
