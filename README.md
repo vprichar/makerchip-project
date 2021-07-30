@@ -1,31 +1,28 @@
 # Makerchip backend
 
 
-
 Makerchip Community Platform is an open source web interface designed to allow users to share custom hardware designs using Makerchip's 
 unique Electronic Design automation (EDA) propietary software and language which enables fast reliable unique design sharing for collaboration among 
 developers. This repository contains the backend storage and connection structure with github's API.
 
 
-Architecture
+## Architecture
 <p align="center">
   <img src="./images/mvc1.png">
 </p>
 
-
-
-Controler
+Controler:
 LoginController.js, GithubController.js, and LoginController.js
-Models
+Models:
 HookEvent.js, Comment.js, RepositoryMC.js, User.js, loveCount.js
-Services
+Services:
 GithubServices.js, WebHookEventService.js
-Views
+Views:
 Repository, hooks, getContentRepo, getAllRepo, getMyRepo, addLove, addComment
 
 
 
-Data Base Makerchip
+## Data Base Makerchip
 <p align="center">
   <img src="./images/dbdiagram1.png">
 </p>
@@ -34,7 +31,7 @@ Data Base Makerchip
 </p>
 
 
-Webhooks Flow
+## Webhooks Flow
 <p align="center">
   <img src="./images/webhooks1.png">
 </p>
@@ -43,8 +40,6 @@ Webhooks Flow
 
 
 ## Context
-
-
 Circuit design has been a game for big industry for far too long! Makerchip provides free and instant access to the latest tools from your browser 
 and from your desktop. This includes open-source tools and proprietary ones. Turning the tables for the open-source community, Redwood EDA's commercial 
 capabilities are often available for open-source development here first--*before* they are available commercially!
@@ -57,9 +52,7 @@ Learn more here https://www.makerchip.com
 - Check out makerchip.com to create a design
 
 ## Getting started
-
 - To run the project you will need Git, Node, mongodb, mongoose, and npm installed.
-- The instagram reply automatization is run in a separate folder which I have not uploaded. Reach me out if you would like to implement this feature.
 
 ## Installation
 
@@ -76,21 +69,21 @@ Create a .env file in the **root** folder with the following variables:
 
 PORT=
 
-Github API keys [documentation](For more info check https://docs.mongodb.com/manual/tutorial/manage-mongodb-processes/)::
-*URL_LOGIN_GITHUB=
-*API_GITHUB_SECRET=
-*API_GITHUB_ID=
+Github API keys:
+* URL_LOGIN_GITHUB=
+* API_GITHUB_SECRET=
+* API_GITHUB_ID=
 
-MongoDB connection credentials [documentation](For more info check https://docs.mongodb.com/manual/tutorial/manage-mongodb-processes/):
-*MONGODB_URI2=
-*MONGODB_URI=
+MongoDB connection credentials [documentation](For more info check https://docs.mongodb.com/manual/tutorial/manage-mongodb-processes/)
+* MONGODB_URI2=
+* MONGODB_URI=
 
 Server variables:
-*API_ORG_EXAMPLE=
-*API_URL_GITHUB=
-*PUBLIC_URL_DNS=
-*FRONT_URL_DNS=
-*SECRET_WORD_COOKIE=
+* API_ORG_EXAMPLE=
+* API_URL_GITHUB=
+* PUBLIC_URL_DNS=
+* FRONT_URL_DNS=
+* SECRET_WORD_COOKIE=
 
 
 ## Built with
