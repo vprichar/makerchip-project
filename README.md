@@ -7,14 +7,11 @@ unique Electronic Design automation (EDA) propietary software and language which
 developers. This repository contains the backend storage and connection structure with github's API.
 
 
+Architecture
+<p align="center">
+  <img src="./images/mvc1.png">
+</p>
 
-Proposed Architecture
-
-
-
-
-
-MVC Architecture
 
 
 Controler
@@ -29,11 +26,18 @@ Repository, hooks, getContentRepo, getAllRepo, getMyRepo, addLove, addComment
 
 
 Data Base Makerchip
-
+<p align="center">
+  <img src="./images/dbdiagram1.png">
+</p>
+<p align="center">
+  <img src="./images/db1.png">
+</p>
 
 
 Webhooks Flow
-
+<p align="center">
+  <img src="./images/webhooks1.png">
+</p>
 
 
 
