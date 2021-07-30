@@ -58,7 +58,7 @@ Learn more here https://www.redwoodeda.com
 
 1. Clone the repository.
 2. Run `npm install` in the root folder.
-3. Run `npm run dev` in your client root folder.
+3. Run `npm run dev` in the root folder.
 4. Run `brew services start mongodb-community` for mac users, for windows and other users check [documentation](https://docs.mongodb.com/manual/tutorial/manage-mongodb-processes/)
 
 
