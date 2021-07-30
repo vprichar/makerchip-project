@@ -43,13 +43,13 @@ Repository, hooks, getContentRepo, getAllRepo, getMyRepo, addLove, addComment
 Circuit design has been a game for big industry for far too long! Makerchip provides free and instant access to the latest tools from your browser 
 and from your desktop. This includes open-source tools and proprietary ones. Turning the tables for the open-source community, Redwood EDA's commercial 
 capabilities are often available for open-source development here first--*before* they are available commercially!
-Learn more here https://www.makerchip.com
+Learn more here https://www.redwoodeda.com
 
 
 ## Demo
 
 - To see the community platform live click here http://167.99.15.99:8333
-- Check out makerchip.com to create a design
+- Check out https://www.makerchip.com to create a design
 
 ## Getting started
 - To run the project you will need Git, Node, mongodb, mongoose, and npm installed.
