@@ -44,14 +44,20 @@ const getDataUserGithub = async (token) => {
         const gitUser = await request.json();
         const queryFind = { idUser: gitUser.id }
 
-        await User.find(queryFind);
+        let respUser = await User.find(queryFind);
+        let exits = (respUser) ? true : false;
+
+
+
+        await User.findOneAndUpdate(queryFind, user, { upsert: true })
+        await saveRepos(token);
         const user = {
             userName: gitUser.login,
             idUser: gitUser.id,
-            token
+            token,
+            exits
         };
-        await User.findOneAndUpdate(queryFind, user, { upsert: true })
-        await saveRepos(token);
+
         return gitUser;
     } catch (error) {
         throw new Error(error);
@@ -347,9 +353,10 @@ const getContentRepo = async (owner, repoName, token) => {
 }
 
 
-const createRepoAndUploadFilesByUserWithTokenAuth = async (token) => {
+const createRepoAndUploadFilesByUserWithTokenAuth = async (token, name) => {
     try {
-        console.log(token)
+        console.log(token);
+        let data = { "name": name }
         const request = await fetch(`${process.env.API_URL_GITHUB}/user/repos`, {
             method: 'POST',
             headers: {
@@ -478,7 +485,22 @@ const getComment = async (idRepo) => {
     }
 }
 
-
+const createFile = async (token, body) => {
+    try {
+        console.log(body);
+        const request = await fetch(`${process.env.API_URL_GITHUB}/repos/${body.owner}/${body.repo}/contents/archivo.txt`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${token}`,
+                'Accept': `application/vnd.github.v3+json`,
+            },
+            body: JSON.stringify(body)
+        });
+        return await request.json();
+    } catch (error) {
+        throw new Error(error);
+    }
+}
 module.exports = {
     getAccessToken,
     getDataUserGithub,
@@ -494,5 +516,6 @@ module.exports = {
     addComment,
     getComment,
     updateRepoMongo,
-    getReadme
+    getReadme,
+    createFile,
 }

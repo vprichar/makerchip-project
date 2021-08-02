@@ -41,25 +41,13 @@ const searchRepositoryOrgByUser = async (req, res) => {
 const createRepositoryGithubAndUploadFiles = async (req, res) => {
     try {
         const access_token = req.headers.authorization.split(' ')[1];
-        const repos = await serviceGithub.getReposByOrganization(access_token);
+        const name_repo = req.body.name_repo;
+        const repos = await serviceGithub.createRepoAndUploadFilesByUserWithTokenAuth(access_token, name_repo);
         if (repos) {
-            const repoReduce = repos.map(repo => {
-                let response = {};
-                response['name'] = repo.name;
-                response['full_name'] = repo.full_name;
-                response['stars'] = repo.stargazers_count;
-                response['watchers'] = repo.watchers_count;
-                response['clone_url'] = repo.clone_url;
-                return response;
-
-            }, {});
-            const response = {};
-            response['user'] = data;
-            response['repositorys'] = repoReduce;
             res.status(200).send({
                 error: false,
                 message: 'Repository',
-                data: response
+                data: repos
             })
         } else {
             res.status(200).send({
@@ -203,6 +191,36 @@ const getComment = async (req, res) => {
     }
 }
 
+const createFile = async (req, res) => {
+    try {
+        const access_token = (req.headers.authorization && req.headers.authorization.length > 10) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
+        const message = req.body.message;
+        const path = req.body.path;
+        const repo = req.body.repo;
+        const owner = req.body.owner;
+        const str = req.body.content;
+        const buff = Buffer.from(str, 'utf-8');
+        const base64 = buff.toString('base64');
+        const content = base64;
+        let body = {
+            message,
+            path,
+            repo,
+            owner,
+            content
+        }
+        const file = await serviceGithub.createFile(access_token, body);
+        res.status(200).send(file)
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: 'Not saved!',
+            data: { error }
+        })
+        throw new Error(error);
+    }
+}
+
 module.exports = {
     searchRepositoryOrgByUser,
     createRepositoryGithubAndUploadFiles,
@@ -214,4 +232,5 @@ module.exports = {
     addLove,
     addComment,
     getComment,
+    createFile,
 }

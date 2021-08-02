@@ -63,15 +63,11 @@ const searchAccessTokenGithubWithCode = async (req, res) => {
         );
         console.log(access_token);
         const user = await serviceGithub.getDataUserGithub(access_token);
-        const saveRepo = await serviceGithub.getDataUserGithub(access_token);
 
-        if (user) {
+        if (user.exits) {
             res.redirect(`${process.env.FRONT_URL_DNS}?token=${access_token}`)
         } else {
-            res.status(403).send({
-                error: true,
-                message: ERROR_LOGIN_NOT_AUTH
-            });
+            res.redirect(`${process.env.PUBLIC_GITHUB_APP}`)
         }
     } catch (error) {
         throw new Error(error);
