@@ -45,7 +45,8 @@ const getDataUserGithub = async (token) => {
         const queryFind = { idUser: gitUser.id }
 
         let respUser = await User.find(queryFind);
-        let exits = (respUser) ? true : false;
+        console.log("respUser,", respUser);
+        let exits = (respUser.length) ? true : false;
 
         const user = {
             userName: gitUser.login,
