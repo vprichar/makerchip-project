@@ -75,9 +75,30 @@ const searchAccessTokenGithubWithCode = async (req, res) => {
 }
 
 
+
+const callbackGithubApp = async (req, res) => {
+    try {
+        const code = req.query.code;
+        const githubId = process.env.API_GITHUB_ID_APP;
+        const githubSecret = process.env.API_GITHUB_SECRET_APP;
+        console.log(code);
+        const access_token = await serviceGithub.getAccessToken(
+            code,
+            githubId,
+            githubSecret,
+        );
+        console.log(access_token);
+        res.redirect(`${process.env.FRONT_URL_DNS}?token=${access_token}`)
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+
 module.exports = {
     makeLoginWithGithub,
     makeLogOutEraseToken,
     makeLoginWithGithubV2,
-    searchAccessTokenGithubWithCode
+    searchAccessTokenGithubWithCode,
+    callbackGithubApp
 }
