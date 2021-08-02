@@ -160,7 +160,9 @@ const getReadme = async (owner, repoName, token) => {
 const updateRepoMongo = async (idRepo, token) => {
     try {
         console.log("Entre a updatear REPO desde un webHook");
+        console.log(idRepo);
         let repo = await getReposById(idRepo);
+        console.log(repo);
         const owner = repo.owner.login;
         const repoName = repo.name;
         const ownerId = repo.owner.id;
