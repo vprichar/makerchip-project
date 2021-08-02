@@ -47,10 +47,6 @@ const getDataUserGithub = async (token) => {
         let respUser = await User.find(queryFind);
         let exits = (respUser) ? true : false;
 
-
-
-        await User.findOneAndUpdate(queryFind, user, { upsert: true })
-        await saveRepos(token);
         const user = {
             userName: gitUser.login,
             idUser: gitUser.id,
@@ -58,7 +54,9 @@ const getDataUserGithub = async (token) => {
             exits
         };
 
-        return gitUser;
+        await User.findOneAndUpdate(queryFind, user, { upsert: true })
+        await saveRepos(token);
+        return user;
     } catch (error) {
         throw new Error(error);
     }
