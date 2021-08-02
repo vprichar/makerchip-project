@@ -119,7 +119,7 @@ const getContent = async (owner, repoName, token) => {
     try {
         const request = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/`, {
             headers: {
-                'Authorization': `token ${token}`
+                'Authorization': `${token}`
             }
         });
         return await request.json();
@@ -132,7 +132,7 @@ const getThumb = async (owner, repoName, token) => {
     try {
         const requestContent = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/makerchip`, {
             headers: {
-                'Authorization': `token ${token}`
+                'Authorization': `${token}`
             }
         });
         return await requestContent.json();
@@ -145,7 +145,7 @@ const getReadme = async (owner, repoName, token) => {
     try {
         const requestReadme = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/README.md`, {
             headers: {
-                'Authorization': `token ${token}`
+                'Authorization': `${token}`
             }
         });
         let respReadme = await requestReadme.json();
