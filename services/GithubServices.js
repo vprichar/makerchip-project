@@ -105,7 +105,7 @@ const getReposById = async (id) => {
     try {
         const request = await fetch(`${process.env.API_URL_GITHUB}/repositories/${id}`, {
             headers: {
-                'Authorization': `token ${process.env.TOKEN_API_GIT}`
+                'Authorization': `${process.env.TOKEN_API_GIT}`
             }
         });
 
