@@ -2,19 +2,18 @@ const express = require('express');
 const router = express.Router();
 const {
     makeLoginWithGithub,
-    searchAccessTokenGithubWithCode,
-    searchRepositoryOrgByUser,
     makeLogOutEraseToken,
-    savePingWebHookEvent,
-    getContentRepo
+    makeLoginWithGithubV2,
+    searchAccessTokenGithubWithCode,
+    callbackGithubApp,
+
 } = require('../controller/LoginController')
 
 router.get('/login/github', makeLoginWithGithub);
 router.get('/logout', makeLogOutEraseToken);
+router.get('/install', makeLoginWithGithubV2);
 router.get('/callback', searchAccessTokenGithubWithCode);
-router.get('/repository', searchRepositoryOrgByUser);
-router.post('/hooks', savePingWebHookEvent);
-router.get('/getContentRepo', getContentRepo);
+router.get('/callbackApp', callbackGithubApp);
 
 
 module.exports = router;
