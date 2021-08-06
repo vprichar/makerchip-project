@@ -94,7 +94,6 @@ const getRepos = async (token) => {
                 'Authorization': `token ${token}`
             }
         });
-
         return await request.json();
     } catch (error) {
         throw new Error(error);
@@ -444,6 +443,7 @@ const detailRepo = async (id, token) => {
 const addComment = async (idRepo, token, parent_id, content) => {
     try {
         let [repos] = await getRepos(token);
+        console.log('TAMANO', repos);
         const comment = {
             idRepo,
             idToken: token,

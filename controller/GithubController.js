@@ -164,6 +164,7 @@ const addComment = async (req, res) => {
         const parent_id = (req.body.parent_id) ? req.body.parent_id : null;
         const comment = req.body.comment;
         const access_token = (req.headers.authorization && req.headers.authorization.length > 10) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
+        console.log(access_token);
         const addComment = await serviceGithub.addComment(idRepo, access_token, parent_id, comment);
         res.status(200).send(addComment)
     } catch (error) {
