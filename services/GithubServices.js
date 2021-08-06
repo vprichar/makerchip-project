@@ -471,7 +471,7 @@ const getComment = async (idRepo) => {
         const output = comments.map((comment) => {
             return {
                 parent_id: comment.parent_id,
-                commentee_id: comment._id,
+                commentee_id: comment.id,
                 content: comment.content,
                 datetime_created: comment.createdAt,
                 datetime_modified: comment.updatedAt,
@@ -492,7 +492,7 @@ const getChildComment = async (idComment) => {
         const output = comments.map((comment) => {
             return {
                 parent_id: comment.parent_id,
-                commentee_id: comment._id,
+                commentee_id: comment.id,
                 content: comment.content,
                 datetime_created: comment.createdAt,
                 datetime_modified: comment.updatedAt,
