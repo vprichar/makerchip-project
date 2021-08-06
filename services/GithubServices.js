@@ -467,7 +467,7 @@ const addComment = async (idRepo, token, parent_id, content) => {
 
 const getComment = async (idRepo) => {
     try {
-        const comments = await Comment.find({ idRepo: idRepo }, { __v: 0 });
+        const comments = await Comment.find({ idRepo: idRepo, parent_id: null }, { __v: 0 });
         const output = comments.map((comment) => {
             return {
                 parent_id: comment.parent_id,
@@ -486,11 +486,52 @@ const getComment = async (idRepo) => {
     }
 }
 
+const getChildComment = async (idComment) => {
+    try {
+        const comments = await Comment.find({parent_id: idComment }, { __v: 0 });
+        const output = comments.map((comment) => {
+            return {
+                parent_id: comment.parent_id,
+                commentee_id: comment._id,
+                content: comment.content,
+                datetime_created: comment.createdAt,
+                datetime_modified: comment.updatedAt,
+                visibility: comment.visibility,
+                author: comment.author,
+                reply_count: comment.reply_count
+            };
+        });
+        return output;
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+
 const createFile = async (token, body) => {
     try {
         console.log(body);
-        const request = await fetch(`${process.env.API_URL_GITHUB}/repos/${body.owner}/${body.repo}/contents/archivo.txt`, {
+        console.log(`${process.env.API_URL_GITHUB}/repos/${body.owner}/${body.repo}/contents/${body.path}`);
+        const request = await fetch(`${process.env.API_URL_GITHUB}/repos/${body.owner}/${body.repo}/contents/${body.path}`, {
             method: 'PUT',
+            headers: {
+                'Authorization': `token ${token}`,
+                'Accept': `application/vnd.github.v3+json`,
+            },
+            body: JSON.stringify(body)
+        });
+        return await request.json();
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+const deleteFile = async (token, body) => {
+    try {
+        console.log(body);
+        console.log(`${process.env.API_URL_GITHUB}/repos/${body.owner}/${body.repo}/contents/${body.path}`);
+        const request = await fetch(`${process.env.API_URL_GITHUB}/repos/${body.owner}/${body.repo}/contents/${body.path}`, {
+            method: 'DELETE',
             headers: {
                 'Authorization': `token ${token}`,
                 'Accept': `application/vnd.github.v3+json`,
@@ -516,7 +557,9 @@ module.exports = {
     addRemoveLove,
     addComment,
     getComment,
+    getChildComment,
     updateRepoMongo,
     getReadme,
     createFile,
+    deleteFile
 }

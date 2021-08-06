@@ -10,8 +10,10 @@ const {
     addLove,
     addComment,
     getComment,
+    getChildComment,
     createRepositoryGithubAndUploadFiles,
     createFile,
+    deleteFile,
 } = require('../controller/GithubController')
 
 
@@ -24,7 +26,9 @@ router.get('/getMyRepo', repoOnlyUser);
 router.get('/addLove/:id', addLove);
 router.post('/addComment', addComment);
 router.get('/getComment/:id', getComment);
+router.get('/getChildComment/:id', getChildComment);
 router.post('/createRepository/', createRepositoryGithubAndUploadFiles);
 router.put('/createFile/', createFile);
+router.delete('/deleteFile/', deleteFile);
 
 module.exports = router;

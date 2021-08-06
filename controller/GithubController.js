@@ -191,6 +191,21 @@ const getComment = async (req, res) => {
     }
 }
 
+const getChildComment = async (req, res) => {
+    try {
+        const idComment = req.params.id;
+        const getComments = await serviceGithub.getChildComment(idComment);
+        res.status(200).send(getComments)
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: 'Not saved!',
+            data: { error }
+        })
+        throw new Error(error);
+    }
+}
+
 const createFile = async (req, res) => {
     try {
         const access_token = (req.headers.authorization && req.headers.authorization.length > 10) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
@@ -221,6 +236,35 @@ const createFile = async (req, res) => {
     }
 }
 
+
+const deleteFile = async (req, res) => {
+    try {
+        const access_token = (req.headers.authorization && req.headers.authorization.length > 10) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
+        const message = req.body.message;
+        const path = req.body.path;
+        const repo = req.body.repo;
+        const owner = req.body.owner;
+        const sha = req.body.sha;
+
+        let body = {    
+            message,
+            path,
+            repo,
+            owner,
+            sha,
+        }
+        const file = await serviceGithub.deleteFile(access_token, body);
+        res.status(200).send(file)
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: 'Not saved!',
+            data: { error }
+        })
+        throw new Error(error);
+    }
+}
+
 module.exports = {
     searchRepositoryOrgByUser,
     createRepositoryGithubAndUploadFiles,
@@ -232,5 +276,7 @@ module.exports = {
     addLove,
     addComment,
     getComment,
+    getChildComment,
     createFile,
+    deleteFile
 }
