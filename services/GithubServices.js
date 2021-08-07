@@ -379,7 +379,7 @@ const detailRepo = async (id, token) => {
         const [findRepo] = await RepositoryMC.find({ id: id });
 
         let respMap = {
-            "id": id,
+            "id": parseInt(id),
             "title": findRepo.title,
             "description": findRepo.description,
             "instructions": findRepo.readme,
@@ -426,7 +426,7 @@ const detailRepo = async (id, token) => {
                 "remixes": 90
             },
             "remix": {
-                "parent": findRepo.parent,
+                "parent": 98765432,
                 "root": null
             }
 
@@ -471,7 +471,7 @@ const getComment = async (idRepo) => {
         const output = comments.map((comment) => {
             return {
                 parent_id: comment.parent_id,
-                commentee_id: comment.id,
+                id: comment.id,
                 content: comment.content,
                 datetime_created: comment.createdAt,
                 datetime_modified: comment.updatedAt,
@@ -492,7 +492,7 @@ const getChildComment = async (idComment) => {
         const output = comments.map((comment) => {
             return {
                 parent_id: comment.parent_id,
-                commentee_id: comment.id,
+                id: comment.id,
                 content: comment.content,
                 datetime_created: comment.createdAt,
                 datetime_modified: comment.updatedAt,
