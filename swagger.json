@@ -1,0 +1,63 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Makerchip-project",
+    "description": "API back para la plataforma de makerchip.",
+    "version": "1.0.0"
+  },
+  "host": "167.99.15.99:3000",
+  "basePath": "/api",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/login/github": {
+      "get": {
+        "summary": "Login con github.",
+        "description": "Login con github e installacion de github App para los webhook.",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/repository": {
+      "get": {
+        "summary": "Regresa todos los repositorios.",
+        "description": "Regresa todos los repositorios registrados en mongo por las personas que hicieron login.",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/projects/{id}": {
+      "get": {
+        "summary": "regresa el detalle de un repo por su ID.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "description": "Id del repo."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  }
+}

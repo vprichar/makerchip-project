@@ -9,6 +9,9 @@ const app = new express();
 const conf = require('./package.json');
 const loginRoutes = require('./routes/LoginRoutes');
 const githubRoutes = require('./routes/GithubRoutes');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+
 
 const db = require('./config/Database');
 
@@ -26,6 +29,7 @@ const corsOptions = {
     optionsSuccessStatus: 200
 }
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(cors(corsOptions))
 app.use(express.urlencoded({
     extended: false
