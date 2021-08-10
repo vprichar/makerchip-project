@@ -129,7 +129,7 @@
             "name": "data",
             "required": true,
             "type": "object",
-            "description": "Id del repo."
+            "description": "Objeto del comentario"
           }
         ],
         "description": "Agregar comentario de un repositorio",
@@ -207,6 +207,72 @@
           }
         }
       }
+    },
+    "/createRepository": {
+      "post": {
+        "summary": "Crear un repositorio en github",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string",
+            "description": "Token de usuario para github."
+          },
+          {
+            "in": "body",
+            "name": "data",
+            "required": true,
+            "type": "object",
+            "description": "nombre del repositorio con el que se va crear el repositorio en github"
+          }
+        ],
+        "description": "Crear un repositorio en github",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CreateRepo"
+            }
+          }
+        }
+      }
+    },
+    "/createFile": {
+      "put": {
+        "summary": "Crear archivo en un repositorio",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string",
+            "description": "Token de usuario para github."
+          },
+          {
+            "in": "body",
+            "name": "data",
+            "required": true,
+            "type": "object",
+            "description": "objeto con la informacion necesaria para crear un archivo en un repositorio"
+          }
+        ],
+        "description": "Crear archivo en un repositorio",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/createFileRepo"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -223,8 +289,45 @@
         }
       },
       "required": [
-        "id",
-        "name"
+        "idRepo",
+        "parent_id",
+        "comment"
+      ]
+    },
+    "CreateRepo": {
+      "properties": {
+        "name_repo": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name_repo"
+      ]
+    },
+    "createFileRepo": {
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }    
+      },
+      "required": [
+        "message",
+        "path",
+        "repo",
+        "owner",
+        "content"
       ]
     }
   }

@@ -15,7 +15,10 @@ const swaggerDocument = require('./swagger.json');
 
 const db = require('./config/Database');
 
-
+var  options  =  { 
+    customCss : '.swagger-ui .topbar {display: none}' 
+  } ;
+  
 
 const {
     ERROR_NOT_FOUND_PAGE
