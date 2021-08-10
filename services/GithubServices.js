@@ -305,9 +305,8 @@ const findAllRepoMC = async (filter) => {
 
 const repoOnlyUser = async (token) => {
     try {
-        const respUser = await User.find({ token });
+        const [respUser] = await User.find({ token });
         const resp = await RepositoryMC.find({ ownerId: respUser.idUser });
-
         let output = [];
         output = resp.map((repo) => {
             return {

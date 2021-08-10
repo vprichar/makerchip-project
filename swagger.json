@@ -58,6 +58,174 @@
           }
         }
       }
+    },
+    "/getMyRepo": {
+      "get": {
+        "summary": "Regresa solo los repositorios del usuario logeado.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string",
+            "description": "Token de usuario para github."
+          }
+        ],
+        "description": "Regresa solo los repositorios del usuario logeado con el token",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/addLove/{id}": {
+      "get": {
+        "summary": "Agregar me gusta a repositorio",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string",
+            "description": "Token de usuario para github."
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "description": "Id del repo."
+          }
+        ],
+        "description": "Agregar me gusta a repositorio",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/addComment": {
+      "post": {
+        "summary": "Agregar comentario de un repositorio",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string",
+            "description": "Token de usuario para github."
+          },
+          {
+            "in": "body",
+            "name": "data",
+            "required": true,
+            "type": "object",
+            "description": "Id del repo."
+          }
+        ],
+        "description": "Agregar comentario de un repositorio",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Comment"
+            }
+          }
+        }
+      }
+    },
+    "/getComment/{id}": {
+      "get": {
+        "summary": "Regresa los comentarios registrados del repositorio",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string",
+            "description": "Token de usuario para github."
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "description": "Id del repo."
+          }
+        ],
+        "description": "Regresa los comentarios registrados del repositorio",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/getChildComment/{id}": {
+      "get": {
+        "summary": "Regresa los Sub-comentarios registrados del repositorio",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string",
+            "description": "Token de usuario para github."
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "description": "Id del repo."
+          }
+        ],
+        "description": "Regresa los Sub-comentarios registrados del repositorio",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Comment": {
+      "properties": {
+        "idRepo": {
+          "type": "integer"
+        },
+        "parent_id": {
+          "type": "string"
+        },
+        "comment": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
     }
   }
 }
