@@ -14,6 +14,7 @@ const {
     createRepositoryGithubAndUploadFiles,
     createFile,
     deleteFile,
+    addTag
 } = require('../controller/GithubController')
 
 
@@ -30,5 +31,6 @@ router.get('/getChildComment/:id', getChildComment);
 router.post('/createRepository/', createRepositoryGithubAndUploadFiles);
 router.put('/createFile/', createFile);
 router.delete('/deleteFile/', deleteFile);
+router.post('/addTag', addTag);
 
 module.exports = router;

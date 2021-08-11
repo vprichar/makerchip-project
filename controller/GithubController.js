@@ -266,6 +266,24 @@ const deleteFile = async (req, res) => {
     }
 }
 
+
+const addTag = async (req, res) => {
+    try {
+        const idRepo = req.body.idRepo;
+        const text = req.body.text;
+        const access_token = (req.headers.authorization && req.headers.authorization.length > 10) ? req.headers.authorization.split(' ')[1] : process.env.TOKEN_API_GIT;
+        const addTag = await serviceGithub.addTag(idRepo, text, access_token);
+        res.status(200).send(addTag)
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: 'Not saved!',
+            data: { error }
+        })
+        throw new Error(error);
+    }
+}
+
 module.exports = {
     searchRepositoryOrgByUser,
     createRepositoryGithubAndUploadFiles,
@@ -279,5 +297,6 @@ module.exports = {
     getComment,
     getChildComment,
     createFile,
-    deleteFile
+    deleteFile,
+    addTag
 }

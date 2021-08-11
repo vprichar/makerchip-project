@@ -4,6 +4,7 @@ const RepositoryMC = require("../models/RepositoryMC");
 const loveCount = require("../models/loveCount");
 const Comment = require("../models/Comment");
 const User = require("../models/User");
+const Tag = require("../models/Tag");
 
 
 const getAccessToken = async (
@@ -376,6 +377,7 @@ const detailRepo = async (id, token) => {
 
     try {
         const [findRepo] = await RepositoryMC.find({ id: id });
+        const findTag = await Tag.find({ idRepo: id }, { __v: 0, createdAt: 0, updatedAt: 0, _id: 0, idRepo: 0 });
 
         let respMap = {
             "id": parseInt(id),
@@ -427,7 +429,8 @@ const detailRepo = async (id, token) => {
             "remix": {
                 "parent": 98765432,
                 "root": null
-            }
+            },
+            "Tag": findTag
 
         };
         console.log('FIN service');
@@ -487,7 +490,7 @@ const getComment = async (idRepo) => {
 
 const getChildComment = async (idComment) => {
     try {
-        const comments = await Comment.find({parent_id: idComment }, { __v: 0 });
+        const comments = await Comment.find({ parent_id: idComment }, { __v: 0 });
         const output = comments.map((comment) => {
             return {
                 parent_id: comment.parent_id,
@@ -542,6 +545,20 @@ const deleteFile = async (token, body) => {
         throw new Error(error);
     }
 }
+
+const addTag = async (idRepo, text) => {
+    try {
+        const tag = {
+            idRepo,
+            text,
+        };
+        const tagSave = new Tag(tag);
+        return await tagSave.save();
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
 module.exports = {
     getAccessToken,
     getDataUserGithub,
@@ -560,5 +577,6 @@ module.exports = {
     updateRepoMongo,
     getReadme,
     createFile,
-    deleteFile
+    deleteFile,
+    addTag
 }
