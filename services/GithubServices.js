@@ -37,6 +37,7 @@ const getAccessToken = async (
 
 const getDataUserGithub = async (token) => {
     try {
+
         const request = await fetch(`${process.env.API_URL_GITHUB}/user`, {
             headers: {
                 'Authorization': `token ${token}`
@@ -44,7 +45,7 @@ const getDataUserGithub = async (token) => {
         });
         const gitUser = await request.json();
         const queryFind = { idUser: gitUser.id }
-
+        console.log("AQUI");
         let respUser = await User.find(queryFind);
         console.log("respUser,", respUser);
         let exits = (respUser.length) ? true : false;
@@ -90,9 +91,10 @@ const getReposByOrganization = async () => {
 
 const getRepos = async (token) => {
     try {
+        console.log(token);
         const request = await fetch(`${process.env.API_URL_GITHUB}/user/repos`, {
             headers: {
-                'Authorization': `token ${token}`
+                'Authorization': `${token}`
             }
         });
         return await request.json();
@@ -127,6 +129,61 @@ const getContent = async (owner, repoName, token) => {
         throw new Error(error);
     }
 }
+
+const getContentDir = async (owner, repoName, token, dir) => {
+    try {
+        const requestContent = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/${dir}`, {
+            headers: {
+                'Authorization': `${token}`
+            }
+        });
+        return await requestContent.json();
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+
+const getRepoTags = async () => {
+    try {
+        const allTag = await Tag.find({}, { __v: 0, createdAt: 0, updatedAt: 0, _id: 0 });
+
+        let a = _.map(allTag, 'text');
+        let b = _.uniqWith(a, _.isEqual);
+        let fin = [];
+
+        for (const tag of b) {
+            let outputs = [];
+            let exists = _.filter(allTag, { text: tag });
+            for (const iterator of exists) {
+                const allRepo = await RepositoryMC.find({ id: iterator.idRepo });
+                let output = [];
+                output = allRepo.map((repo) => {
+                    return {
+                        thumbnail_url: repo.thumbnail_url,
+                        title: repo.title,
+                        creator: repo.creator,
+                        type: repo.type,
+                        id: repo.id,
+                        love_count: repo.love_count,
+                        stars: repo.stars,
+                    };
+                });
+                outputs.push(output);
+            }
+            let obj = {
+                tag,
+                repositories: outputs
+            }
+            fin.push(obj);
+        }
+
+        return await fin;
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
 
 const getThumb = async (owner, repoName, token) => {
     try {
@@ -217,6 +274,7 @@ const saveRepos = async (token) => {
             const ownerId = repo.owner.id;
             const avatarOwner = repo.owner.avatar_url;
             const contentRepo = await getContent(owner, repoName, token);
+            console.log(contentRepo);
             let exists = _.find(contentRepo, data => {
                 return data.name == 'makerchip.json';
             });
@@ -430,7 +488,7 @@ const detailRepo = async (id, token) => {
                 "parent": 98765432,
                 "root": null
             },
-            "Tag": findTag
+            "tags": findTag
 
         };
         console.log('FIN service');
@@ -578,5 +636,6 @@ module.exports = {
     getReadme,
     createFile,
     deleteFile,
-    addTag
+    addTag,
+    getRepoTags
 }

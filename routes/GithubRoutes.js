@@ -14,7 +14,9 @@ const {
     createRepositoryGithubAndUploadFiles,
     createFile,
     deleteFile,
-    addTag
+    addTag,
+    saveExposed,
+    getRepoTags
 } = require('../controller/GithubController')
 
 
@@ -32,5 +34,9 @@ router.post('/createRepository/', createRepositoryGithubAndUploadFiles);
 router.put('/createFile/', createFile);
 router.delete('/deleteFile/', deleteFile);
 router.post('/addTag', addTag);
+router.get('/saveExposed', saveExposed);
+router.get('/getRepoTags', getRepoTags);
+
+saveExposed
 
 module.exports = router;

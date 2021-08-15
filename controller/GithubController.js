@@ -284,6 +284,38 @@ const addTag = async (req, res) => {
     }
 }
 
+
+const saveExposed = async (req, res) => {
+    try {
+        const access_token = req.headers.authorization;
+        console.log(access_token);
+        const getComments = await serviceGithub.saveRepos(access_token);
+        res.status(200).send(getComments)
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: 'Not saved!',
+            data: { error }
+        })
+        throw new Error(error);
+    }
+}
+
+
+const getRepoTags = async (req, res) => {
+    try {
+   
+        const getRepoTags = await serviceGithub.getRepoTags();
+        res.status(200).send(getRepoTags)
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: 'Not saved!',
+            data: { error }
+        })
+        throw new Error(error);
+    }
+}
 module.exports = {
     searchRepositoryOrgByUser,
     createRepositoryGithubAndUploadFiles,
@@ -298,5 +330,7 @@ module.exports = {
     getChildComment,
     createFile,
     deleteFile,
-    addTag
+    addTag,
+    saveExposed,
+    getRepoTags,
 }
