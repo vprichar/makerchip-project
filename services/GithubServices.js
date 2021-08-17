@@ -200,7 +200,7 @@ const getThumb = async (owner, repoName, token) => {
 
 const getReadme = async (owner, repoName, token) => {
     try {
-        const requestReadme = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/README.md`, {
+        const requestReadme = await fetch(`${process.env.API_URL_GITHUB}/repos/${owner}/${repoName}/contents/makerchip.json`, {
             headers: {
                 'Authorization': `${token}`
             }
