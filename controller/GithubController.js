@@ -316,6 +316,21 @@ const getRepoTags = async (req, res) => {
         throw new Error(error);
     }
 }
+
+const getReposOneTag = async (req, res) => {
+    try {
+        const text = req.params.text;
+        const getReposOneTag = await serviceGithub.getReposOneTag(text);
+        res.status(200).send(getReposOneTag)
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: 'Not saved!',
+            data: { error }
+        })
+        throw new Error(error);
+    }
+}
 module.exports = {
     searchRepositoryOrgByUser,
     createRepositoryGithubAndUploadFiles,
@@ -333,4 +348,5 @@ module.exports = {
     addTag,
     saveExposed,
     getRepoTags,
+    getReposOneTag,
 }

@@ -16,7 +16,8 @@ const {
     deleteFile,
     addTag,
     saveExposed,
-    getRepoTags
+    getRepoTags,
+    getReposOneTag
 } = require('../controller/GithubController')
 
 
@@ -36,6 +37,8 @@ router.delete('/deleteFile/', deleteFile);
 router.post('/addTag', addTag);
 router.get('/saveExposed', saveExposed);
 router.get('/getRepoTags', getRepoTags);
+router.get('/getReposOneTag/:text', getReposOneTag);
+
 
 saveExposed
 

@@ -213,7 +213,6 @@ const getReadme = async (owner, repoName, token) => {
     }
 }
 
-
 const updateRepoMongo = async (idRepo, token) => {
     try {
         console.log("Entre a updatear REPO desde un webHook");
@@ -305,10 +304,11 @@ const saveRepos = async (token) => {
                 response['parent'] = parent;
                 response['created_atRepo'] = repo.created_at;
                 response['watchers'] = repo.watchers;
-
                 respMc.push(response);
                 await RepositoryMC.findOneAndUpdate(query, response, { upsert: true });
             }
+
+
         }
         return respMc;
     } catch (error) {
@@ -434,11 +434,19 @@ const createRepoAndUploadFilesByUserWithTokenAuth = async (token, name) => {
 const detailRepo = async (id, token) => {
 
     try {
+
+        const [findUser] = await User.find({ token: token });
         const [findRepo] = await RepositoryMC.find({ id: id });
         const findTag = await Tag.find({ idRepo: id }, { __v: 0, createdAt: 0, updatedAt: 0, _id: 0, idRepo: 0 });
 
+        let owner = false;
+        if (findUser) {
+            owner = true;
+        }
+
         let respMap = {
             "id": parseInt(id),
+            owner,
             "title": findRepo.title,
             "description": findRepo.description,
             "instructions": findRepo.readme,
@@ -617,6 +625,33 @@ const addTag = async (idRepo, text) => {
     }
 }
 
+const getReposOneTag = async (textTag) => {
+    try {
+        const repos = await Tag.find({ text: textTag }, { __v: 0, createdAt: 0, updatedAt: 0, _id: 0, id: 0 });
+        let idRepos = _.map(repos, 'idRepo');
+        let outputs = { tag: textTag };
+        outputs.repositories = [];
+        for (const id of idRepos) {
+            const [repo] = await RepositoryMC.find({ id: id });
+            let output = [];
+            output = {
+                thumbnail_url: repo.thumbnail_url,
+                title: repo.title,
+                creator: repo.creator,
+                type: repo.type,
+                id: repo.id,
+                love_count: repo.love_count,
+                stars: repo.stars,
+            };
+            outputs.repositories.push(output);
+        }
+        return outputs;
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+
 module.exports = {
     getAccessToken,
     getDataUserGithub,
@@ -637,5 +672,7 @@ module.exports = {
     createFile,
     deleteFile,
     addTag,
-    getRepoTags
+    getRepoTags,
+    getReposOneTag
+
 }
