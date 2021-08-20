@@ -94,7 +94,7 @@ const getRepos = async (token) => {
         console.log(token);
         const request = await fetch(`${process.env.API_URL_GITHUB}/user/repos`, {
             headers: {
-                'Authorization': `${token}`
+                'Authorization': `token ${token}`
             }
         });
         return await request.json();
@@ -138,47 +138,6 @@ const getContentDir = async (owner, repoName, token, dir) => {
             }
         });
         return await requestContent.json();
-    } catch (error) {
-        throw new Error(error);
-    }
-}
-
-
-const getRepoTags = async () => {
-    try {
-        const allTag = await Tag.find({}, { __v: 0, createdAt: 0, updatedAt: 0, _id: 0 });
-
-        let a = _.map(allTag, 'text');
-        let b = _.uniqWith(a, _.isEqual);
-        let fin = [];
-
-        for (const tag of b) {
-            let outputs = [];
-            let exists = _.filter(allTag, { text: tag });
-            for (const iterator of exists) {
-                const allRepo = await RepositoryMC.find({ id: iterator.idRepo });
-                let output = [];
-                output = allRepo.map((repo) => {
-                    return {
-                        thumbnail_url: repo.thumbnail_url,
-                        title: repo.title,
-                        creator: repo.creator,
-                        type: repo.type,
-                        id: repo.id,
-                        love_count: repo.love_count,
-                        stars: repo.stars,
-                    };
-                });
-                outputs.push(output);
-            }
-            let obj = {
-                tag,
-                repositories: outputs
-            }
-            fin.push(obj);
-        }
-
-        return await fin;
     } catch (error) {
         throw new Error(error);
     }
@@ -650,6 +609,46 @@ const getReposOneTag = async (textTag) => {
         throw new Error(error);
     }
 }
+
+
+const getRepoTags = async () => {
+    try {
+        const allTag = await Tag.find({}, { __v: 0, createdAt: 0, updatedAt: 0, _id: 0 });
+
+        let a = _.map(allTag, 'text');
+        let b = _.uniqWith(a, _.isEqual);
+        let fin = [];
+
+        for (const tag of b) {
+            let exists = _.filter(allTag, { text: tag });
+            let outputs = [];
+            for (const iterator of exists) {
+                const allRepo = await RepositoryMC.find({ id: iterator.idRepo });
+                let output = [];
+                output = {
+                    thumbnail_url: repo.thumbnail_url,
+                    title: repo.title,
+                    creator: repo.creator,
+                    type: repo.type,
+                    id: repo.id,
+                    love_count: repo.love_count,
+                    stars: repo.stars,
+                };
+                outputs.push(output);
+            }
+            let obj = {
+                tag,
+                repositories: outputs
+            }
+            fin.push(obj);
+        }
+
+        return await fin;
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
 
 
 module.exports = {
