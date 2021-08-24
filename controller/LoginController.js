@@ -65,6 +65,7 @@ const searchAccessTokenGithubWithCode = async (req, res) => {
         );
         console.log(access_token);
         const user = await serviceGithub.getDataUserGithub(access_token);
+
         console.log(user);
         if (origin == 'IDE') {
             res.redirect(`http://137.184.30.125:8080/sandbox?token=${access_token}`)
@@ -92,7 +93,7 @@ const callbackIDE = async (req, res) => {
             githubSecret,
         );
         console.log(access_token);
-        // const user = await serviceGithub.getDataUserGithub(access_token);
+        await serviceGithub.getDataUserGithub(access_token);
         // console.log(user);
         res.redirect(`http://137.184.30.125:8080/sandbox?token=${access_token}`)
     } catch (error) {
