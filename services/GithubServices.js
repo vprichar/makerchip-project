@@ -384,10 +384,59 @@ const createRepoAndUploadFilesByUserWithTokenAuth = async (token, name) => {
             },
             body: JSON.stringify(data)
         });
+        const resp = await request.json();
+        let a = await createmakerchipJson(token, name);
+        console.log(a);
+        return resp;
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+const createmakerchipJson = async (token, name) => {
+    try {
+        console.log(token);
+        const [user] = await User.find({ token: token });
+        console.log(user);
+        let contenido = {
+            "demo": {
+                "root": ".",
+                "thumb": "makerchip/thumb.png",
+                "desc": "Backtracking maze solver.",
+                "details": "<b>demo demo1</b>",
+                "docs": "makerchip/README.md",
+                "src": "src/frog_viz.tlv"
+            },
+            "implementations": {}
+        };
+
+        let objJsonStr = JSON.stringify(contenido);
+        let content = Buffer.from(objJsonStr).toString("base64");
+        let message = 'Crear MakerChip file';
+        let path = 'makerchip.json';
+        let repo = name;
+        let owner = user.userName;
+        let body = {
+            message,
+            path,
+            repo,
+            owner,
+            content
+        };
+
+        const request = await fetch(`${process.env.API_URL_GITHUB}/repos/${user.userName}/${name}/contents/makerchip.json`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${token}`,
+                'Accept': `application/vnd.github.v3+json`,
+            },
+            body: JSON.stringify(body)
+        });
         return await request.json();
     } catch (error) {
         throw new Error(error);
     }
+
 }
 
 const detailRepo = async (id, token) => {
