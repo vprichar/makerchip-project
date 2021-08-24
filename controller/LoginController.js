@@ -81,6 +81,41 @@ const searchAccessTokenGithubWithCode = async (req, res) => {
 }
 
 
+const callbackIDE = async (req, res) => {
+    try {
+        const code = req.query.code;
+        const githubId = process.env.API_GITHUB_ID_IDE;
+        const githubSecret = process.env.API_GITHUB_SECRET_IDE;
+        const access_token = await serviceGithub.getAccessToken(
+            code,
+            githubId,
+            githubSecret,
+        );
+        console.log(access_token);
+        // const user = await serviceGithub.getDataUserGithub(access_token);
+        // console.log(user);
+        res.redirect(`http://137.184.30.125:8080/sandbox?token=${access_token}`)
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+const makeLoginWithGithubIDE = async (req, res) => {
+    try {
+        const redirect_uri = `${process.env.PUBLIC_URL_DNS}/api/callbackIDE`;
+        console.log(redirect_uri)
+        console.log(`${process.env.URL_LOGIN_GITHUB}/authorize?client_id=${process.env.API_GITHUB_ID_IDE}&redirect_uri=${redirect_uri}`)
+        res.send({
+            error: false,
+            message: 'Authorization',
+            data: `${process.env.URL_LOGIN_GITHUB}/authorize?client_id=${process.env.API_GITHUB_ID_IDE}&redirect_uri=${redirect_uri}&scope=repo,admin:repo_hook&public_repo`
+        });
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+
 
 const callbackGithubApp = async (req, res) => {
     try {
@@ -106,5 +141,7 @@ module.exports = {
     makeLogOutEraseToken,
     makeLoginWithGithubV2,
     searchAccessTokenGithubWithCode,
-    callbackGithubApp
+    callbackGithubApp,
+    callbackIDE,
+    makeLoginWithGithubIDE
 }
