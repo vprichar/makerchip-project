@@ -53,6 +53,8 @@ const makeLogOutEraseToken = async (req, res) => {
 const searchAccessTokenGithubWithCode = async (req, res) => {
     try {
         const code = req.query.code;
+        const origin = req.query.origin;
+
         const githubId = process.env.API_GITHUB_ID;
         const githubSecret = process.env.API_GITHUB_SECRET;
         console.log(code)
@@ -64,10 +66,14 @@ const searchAccessTokenGithubWithCode = async (req, res) => {
         console.log(access_token);
         const user = await serviceGithub.getDataUserGithub(access_token);
         console.log(user);
-        if (user.exits) {
-            res.redirect(`${process.env.FRONT_URL_DNS}?token=${access_token}`)
+        if (origin == 'IDE') {
+            res.redirect(`http://137.184.30.125:8080/sandbox?token=${access_token}`)
         } else {
-            res.redirect(`${process.env.PUBLIC_GITHUB_APP}`)
+            if (user.exits) {
+                res.redirect(`${process.env.FRONT_URL_DNS}?token=${access_token}`)
+            } else {
+                res.redirect(`${process.env.PUBLIC_GITHUB_APP}`)
+            }
         }
     } catch (error) {
         throw new Error(error);

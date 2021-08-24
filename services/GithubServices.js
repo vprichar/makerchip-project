@@ -411,7 +411,7 @@ const detailRepo = async (id, token) => {
             "instructions": findRepo.readme,
             "visibility": "visible",
             "public": true,
-            "comments_allowed": true,
+            "comments_allowed": false,
             "is_published": true,
             "author": {
                 "id": findRepo.ownerId,
