@@ -18,5 +18,4 @@ router.get('/install', makeLoginWithGithubV2);
 router.get('/callback', searchAccessTokenGithubWithCode);
 router.get('/callbackApp', callbackGithubApp);
 router.get('/callbackIDE', callbackIDE);
-
 module.exports = router;
